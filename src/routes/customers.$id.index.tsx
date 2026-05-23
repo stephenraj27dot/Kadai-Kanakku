@@ -143,6 +143,24 @@ function CustomerDetail() {
 
       {/* Actions */}
       <div className="px-4 mt-5 grid grid-cols-2 gap-3 animate-fade-in-up stagger-item">
+        <button
+          onClick={() => {
+            const link = `${window.location.origin}/c/${session?.user.id}`;
+            if (navigator.share) {
+              navigator.share({
+                title: 'கடை கணக்கு - உங்கள் கணக்கு',
+                text: `${c?.name}, உங்கள் கடை கணக்கை இங்கே பார்க்கவும்:\n\n`,
+                url: link
+              }).catch(console.error);
+            } else {
+              navigator.clipboard.writeText(`உங்கள் கணக்கு லிங்க்:\n${link}`);
+              alert("லிங்க் காப்பி செய்யப்பட்டது!");
+            }
+          }}
+          className="h-14 col-span-2 rounded-2xl bg-secondary text-secondary-foreground font-bold shadow-soft press-scale flex items-center justify-center gap-2 mb-2"
+        >
+          <span className={ta ? "font-tamil" : ""}>வாடிக்கையாளருக்கு லிங்க் அனுப்பு</span>
+        </button>
         <Link
           to="/customers/$id/add"
           params={{ id }}
