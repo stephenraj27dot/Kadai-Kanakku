@@ -16,15 +16,15 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import { useEffect, useState } from "react";
 import { registerSW } from "virtual:pwa-register";
 
-if (typeof window !== "undefined") {
-  registerSW({
-    immediate: true,
-    onNeedRefresh() {
-      // Force reload when a new update is available
-      window.location.reload();
-    },
-  });
-}
+// PWA registration temporarily disabled to prevent sw.js 404 error in console
+// if (typeof window !== "undefined") {
+//   registerSW({
+//     immediate: true,
+//     onNeedRefresh() {
+//       window.location.reload();
+//     },
+//   });
+// }
 
 function NotFoundComponent() {
   return (
