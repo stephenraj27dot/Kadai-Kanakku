@@ -95,11 +95,12 @@ function CustomerDashboard() {
         .subscribe()
 
       // Cleanup
+      setLoading(false)
       return () => { supabase.removeChannel(channel) }
     } else {
       setProfile(null)
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   // Effect is handled below
