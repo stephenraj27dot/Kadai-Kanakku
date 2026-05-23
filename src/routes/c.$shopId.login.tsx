@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { PhoneShell } from '@/components/PhoneShell'
 import { User, Lock, ArrowRight } from 'lucide-react'
@@ -18,7 +18,6 @@ function CustomerLogin() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  import { useEffect } from 'react'
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
