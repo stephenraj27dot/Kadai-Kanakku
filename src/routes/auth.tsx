@@ -47,7 +47,7 @@ function AuthPage() {
         navigate({ to: "/dashboard", replace: true });
       }
     } else {
-      // Customer Login
+      // Customer Login / Signup
       const cleanPhone = phone.replace(/\D/g, '');
       if (cleanPhone.length < 10) {
         setError(ta ? 'சரியான மொபைல் எண்ணை உள்ளிடவும்' : 'Please enter a valid phone number');
@@ -56,60 +56,104 @@ function AuthPage() {
       }
       
       const fakeEmail = `${cleanPhone}@kadaikanakku.com`;
-      const custPassword = password; // User defined or we could use a default, but user wants to enter it.
-      
+
       if (isLogin) {
+        // --- LOGIN FLOW ---
         const { error: signInErr } = await supabase.auth.signInWithPassword({
           email: fakeEmail,
-          password: custPassword,
+          password,
         });
-        authError = signInErr;
-      } else {
-        const { error: signUpErr } = await supabase.auth.signUp({
-          email: fakeEmail,
-          password: custPassword,
-        });
-        authError = signUpErr;
-      }
 
-      if (authError) {
-        if (authError.message === "Invalid login credentials") {
-          setError(ta 
-            ? (isLogin ? "தவறான மொபைல் எண்/பாஸ்வேர்ட். புதிய வாடிக்கையாளராக இருந்தால் கீழே உள்ள 'புதிய கணக்கு தொடங்க வேண்டுமா' என்பதை கிளிக் செய்யவும்." : "தவறான மொபைல் எண் அல்லது பாஸ்வேர்ட்") 
-            : (isLogin ? "Invalid phone or password. If you are a new customer, click 'Need an account? Sign up' below." : "Invalid phone or password")
-          );
-        } else {
-          setError(authError.message);
+        if (signInErr) {
+          setError(ta
+            ? "தவறான மொபைல் எண்/பாஸ்வேர்ட். புதிய வாடிக்கையாளராக இருந்தால் கீழே உள்ள 'புதிய கணக்கு தொடங்க வேண்டுமா' என்பதை கிளிக் செய்யவும்."
+            : "Invalid phone or password. New customer? Click 'Need an account? Sign up' below.");
+          setLoading(false);
+          return;
         }
-        setLoading(false);
-      } else {
-        // Find which shop this customer belongs to
-        const { data: user } = await supabase.auth.getUser();
-        if (user.user) {
-          const { data: custData } = await supabase
+
+        // Find shop and auto-link
+        const { data: { user: loggedUser } } = await supabase.auth.getUser();
+        if (loggedUser) {
+          // Try find by auth_user_id first (already linked)
+          let { data: custRows } = await supabase
             .from('customers')
-            .select('shop_owner_id')
-            .eq('auth_user_id', user.user.id)
+            .select('user_id')
+            .eq('auth_user_id', loggedUser.id)
             .limit(1);
-            
-          if (custData && custData.length > 0) {
-            navigate({ to: `/c/${custData[0].shop_owner_id}`, replace: true });
-          } else {
-            // Customer signed up but hasn't been added to any shop yet or auto-linking failed
-            // Let's try matching by phone just in case
-            const { data: phoneMatch } = await supabase
+
+          if (!custRows || custRows.length === 0) {
+            // Auto-link: match by phone number, claim the record
+            const { data: linked } = await supabase
               .from('customers')
-              .select('shop_owner_id')
-              .eq('phone', phone)
+              .update({ auth_user_id: loggedUser.id })
+              .eq('phone', cleanPhone)
+              .is('auth_user_id', null)
+              .select('user_id')
               .limit(1);
-              
-            if (phoneMatch && phoneMatch.length > 0) {
-               navigate({ to: `/c/${phoneMatch[0].shop_owner_id}`, replace: true });
-            } else {
-               setError(ta ? "உங்களுக்கான கடை எதுவும் கிடைக்கவில்லை. கடைக்காரரை தொடர்பு கொள்ளவும்." : "No shop account found. Please contact the shop owner.");
-               setLoading(false);
-            }
+            custRows = linked;
           }
+
+          if (custRows && custRows.length > 0) {
+            navigate({ to: `/c/${custRows[0].user_id}`, replace: true });
+          } else {
+            setError(ta
+              ? "கடைக்காரர் உங்களை இன்னும் சேர்க்கவில்லை. கடைக்காரரை தொடர்பு கொள்ளவும்."
+              : "Shop owner hasn't added you yet. Please contact the shop owner.");
+            setLoading(false);
+          }
+        }
+
+      } else {
+        // --- SIGNUP FLOW ---
+        // First check if this phone number is registered in any shop
+        const { data: existing } = await supabase
+          .from('customers')
+          .select('user_id, phone')
+          .eq('phone', cleanPhone)
+          .limit(1);
+
+        if (!existing || existing.length === 0) {
+          setError(ta
+            ? "இந்த மொபைல் எண் எந்தக் கடையிலும் பதிவு செய்யப்படவில்லை. கடைக்காரரிடம் உங்கள் எண்ணை சேர்க்கச் சொல்லுங்கள்."
+            : "This phone number is not registered in any shop. Ask the shop owner to add you first.");
+          setLoading(false);
+          return;
+        }
+
+        const { error: signUpErr, data: signUpData } = await supabase.auth.signUp({
+          email: fakeEmail,
+          password,
+        });
+
+        if (signUpErr) {
+          if (signUpErr.message.includes('already registered') || signUpErr.message.includes('already been registered')) {
+            setError(ta
+              ? "இந்த மொபைல் எண்ணில் ஏற்கனவே கணக்கு உள்ளது. 'உள்நுழை' என்பதை கிளிக் செய்யவும்."
+              : "Account already exists. Please click 'Login' instead.");
+          } else {
+            setError(signUpErr.message);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Auto-link the customer record
+        if (signUpData.user) {
+          await supabase
+            .from('customers')
+            .update({ auth_user_id: signUpData.user.id })
+            .eq('phone', cleanPhone)
+            .is('auth_user_id', null);
+
+          navigate({ to: `/c/${existing[0].user_id}`, replace: true });
+        } else {
+          // Email confirmation may be required - shouldn't happen with our config
+          setError(ta
+            ? "கணக்கு உருவாக்கப்பட்டது. இப்போது 'உள்நுழை' என்பதை கிளிக் செய்யவும்."
+            : "Account created! Please click 'Login' now.");
+          setIsLogin(true);
+          setLoading(false);
         }
       }
     }
