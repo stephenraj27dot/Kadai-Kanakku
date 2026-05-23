@@ -73,9 +73,14 @@ function AuthPage() {
       }
 
       if (authError) {
-        setError(authError.message === "Invalid login credentials" 
-          ? (ta ? "தவறான மொபைல் எண் அல்லது பாஸ்வேர்ட்" : "Invalid phone or password") 
-          : authError.message);
+        if (authError.message === "Invalid login credentials") {
+          setError(ta 
+            ? (isLogin ? "தவறான மொபைல் எண்/பாஸ்வேர்ட். புதிய வாடிக்கையாளராக இருந்தால் கீழே உள்ள 'புதிய கணக்கு தொடங்க வேண்டுமா' என்பதை கிளிக் செய்யவும்." : "தவறான மொபைல் எண் அல்லது பாஸ்வேர்ட்") 
+            : (isLogin ? "Invalid phone or password. If you are a new customer, click 'Need an account? Sign up' below." : "Invalid phone or password")
+          );
+        } else {
+          setError(authError.message);
+        }
         setLoading(false);
       } else {
         // Find which shop this customer belongs to
@@ -84,7 +89,7 @@ function AuthPage() {
           const { data: custData } = await supabase
             .from('customers')
             .select('shop_owner_id')
-            .eq('user_id', user.user.id)
+            .eq('auth_user_id', user.user.id)
             .limit(1);
             
           if (custData && custData.length > 0) {
