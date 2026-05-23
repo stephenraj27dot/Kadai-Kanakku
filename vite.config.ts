@@ -18,16 +18,16 @@ export default defineConfig({
       VitePWA({
         registerType: "autoUpdate",
         manifest: {
-          name: "Baki Book - Kadai Kanakku",
-          short_name: "Baki Book",
+          name: "Kadai Kanakku",
+          short_name: "Kadai Kanakku",
           description: "Simple digital baki notebook for local shop owners.",
           theme_color: "#16a34a",
           background_color: "#ffffff",
           display: "standalone",
           icons: [
             {
-              src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2316a34a'><path d='M4 19V6c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v13M4 19a2 2 0 002 2h12a2 2 0 002-2M4 19h16'/></svg>",
-              sizes: "192x192",
+              src: "/favicon.svg",
+              sizes: "any",
               type: "image/svg+xml",
               purpose: "any maskable"
             }

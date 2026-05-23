@@ -62,10 +62,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#16A34A" },
-      { title: "Baki Book — Shop Khata for Tamil Nadu" },
+      { title: "Kadai Kanakku — Shop Khata for Tamil Nadu" },
       { name: "description", content: "Simple digital baki notebook for local shop owners. Track customer balances in Tamil and English." },
     ],
     links: [
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },

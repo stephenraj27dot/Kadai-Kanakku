@@ -73,14 +73,14 @@ const CustomersIdIndexRoute = CustomersIdIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CustomersIdPayRoute = CustomersIdPayRouteImport.update({
-  id: '/pay',
-  path: '/pay',
-  getParentRoute: () => CustomersIdRoute,
+  id: '/customers/$id/pay',
+  path: '/customers/$id/pay',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CustomersIdAddRoute = CustomersIdAddRouteImport.update({
-  id: '/add',
-  path: '/add',
-  getParentRoute: () => CustomersIdRoute,
+  id: '/customers/$id/add',
+  path: '/customers/$id/add',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -181,6 +181,8 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   CustomersNewRoute: typeof CustomersNewRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
+  CustomersIdAddRoute: typeof CustomersIdAddRoute
+  CustomersIdPayRoute: typeof CustomersIdPayRoute
   CustomersIdIndexRoute: typeof CustomersIdIndexRoute
 }
 
@@ -258,17 +260,17 @@ declare module '@tanstack/react-router' {
     }
     '/customers/$id/pay': {
       id: '/customers/$id/pay'
-      path: '/pay'
+      path: '/customers/$id/pay'
       fullPath: '/customers/$id/pay'
       preLoaderRoute: typeof CustomersIdPayRouteImport
-      parentRoute: typeof CustomersIdRoute
+      parentRoute: typeof rootRouteImport
     }
     '/customers/$id/add': {
       id: '/customers/$id/add'
-      path: '/add'
+      path: '/customers/$id/add'
       fullPath: '/customers/$id/add'
       preLoaderRoute: typeof CustomersIdAddRouteImport
-      parentRoute: typeof CustomersIdRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -283,6 +285,8 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   CustomersNewRoute: CustomersNewRoute,
   CustomersIndexRoute: CustomersIndexRoute,
+  CustomersIdAddRoute: CustomersIdAddRoute,
+  CustomersIdPayRoute: CustomersIdPayRoute,
   CustomersIdIndexRoute: CustomersIdIndexRoute,
 }
 export const routeTree = rootRouteImport
