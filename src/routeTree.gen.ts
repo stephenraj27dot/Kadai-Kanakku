@@ -14,11 +14,11 @@ import { Route as PinSetupRouteImport } from './routes/pin-setup'
 import { Route as PinLockRouteImport } from './routes/pin-lock'
 import { Route as LanguageRouteImport } from './routes/language'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CustomersRouteImport } from './routes/customers'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CustomersIndexRouteImport } from './routes/customers.index'
 import { Route as CustomersNewRouteImport } from './routes/customers.new'
-import { Route as CustomersIdRouteImport } from './routes/customers.$id'
+import { Route as CustomersIdIndexRouteImport } from './routes/customers.$id.index'
 import { Route as CustomersIdPayRouteImport } from './routes/customers.$id.pay'
 import { Route as CustomersIdAddRouteImport } from './routes/customers.$id.add'
 
@@ -47,11 +47,6 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CustomersRoute = CustomersRouteImport.update({
-  id: '/customers',
-  path: '/customers',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -62,15 +57,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CustomersIndexRoute = CustomersIndexRouteImport.update({
+  id: '/customers/',
+  path: '/customers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CustomersNewRoute = CustomersNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => CustomersRoute,
 } as any)
-const CustomersIdRoute = CustomersIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => CustomersRoute,
+const CustomersIdIndexRoute = CustomersIdIndexRouteImport.update({
+  id: '/customers/$id/',
+  path: '/customers/$id/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CustomersIdPayRoute = CustomersIdPayRouteImport.update({
   id: '/pay',
@@ -86,100 +86,101 @@ const CustomersIdAddRoute = CustomersIdAddRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/customers': typeof CustomersRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/language': typeof LanguageRoute
   '/pin-lock': typeof PinLockRoute
   '/pin-setup': typeof PinSetupRoute
   '/settings': typeof SettingsRoute
-  '/customers/$id': typeof CustomersIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
+  '/customers/': typeof CustomersIndexRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
+  '/customers/$id/': typeof CustomersIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/customers': typeof CustomersRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/language': typeof LanguageRoute
   '/pin-lock': typeof PinLockRoute
   '/pin-setup': typeof PinSetupRoute
   '/settings': typeof SettingsRoute
-  '/customers/$id': typeof CustomersIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
+  '/customers': typeof CustomersIndexRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
+  '/customers/$id': typeof CustomersIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/customers': typeof CustomersRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/language': typeof LanguageRoute
   '/pin-lock': typeof PinLockRoute
   '/pin-setup': typeof PinSetupRoute
   '/settings': typeof SettingsRoute
-  '/customers/$id': typeof CustomersIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
+  '/customers/': typeof CustomersIndexRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
+  '/customers/$id/': typeof CustomersIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
-    | '/customers'
     | '/dashboard'
     | '/language'
     | '/pin-lock'
     | '/pin-setup'
     | '/settings'
-    | '/customers/$id'
     | '/customers/new'
+    | '/customers/'
     | '/customers/$id/add'
     | '/customers/$id/pay'
+    | '/customers/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/customers'
     | '/dashboard'
     | '/language'
     | '/pin-lock'
     | '/pin-setup'
     | '/settings'
-    | '/customers/$id'
     | '/customers/new'
+    | '/customers'
     | '/customers/$id/add'
     | '/customers/$id/pay'
+    | '/customers/$id'
   id:
     | '__root__'
     | '/'
     | '/auth'
-    | '/customers'
     | '/dashboard'
     | '/language'
     | '/pin-lock'
     | '/pin-setup'
     | '/settings'
-    | '/customers/$id'
     | '/customers/new'
+    | '/customers/'
     | '/customers/$id/add'
     | '/customers/$id/pay'
+    | '/customers/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
-  CustomersRoute: typeof CustomersRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   LanguageRoute: typeof LanguageRoute
   PinLockRoute: typeof PinLockRoute
   PinSetupRoute: typeof PinSetupRoute
   SettingsRoute: typeof SettingsRoute
+  CustomersIndexRoute: typeof CustomersIndexRoute
+  CustomersIdIndexRoute: typeof CustomersIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -219,13 +220,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/customers': {
-      id: '/customers'
-      path: '/customers'
-      fullPath: '/customers'
-      preLoaderRoute: typeof CustomersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -240,6 +234,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/customers/': {
+      id: '/customers/'
+      path: '/customers'
+      fullPath: '/customers/'
+      preLoaderRoute: typeof CustomersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/customers/new': {
       id: '/customers/new'
       path: '/new'
@@ -247,12 +248,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersNewRouteImport
       parentRoute: typeof CustomersRoute
     }
-    '/customers/$id': {
-      id: '/customers/$id'
-      path: '/$id'
-      fullPath: '/customers/$id'
-      preLoaderRoute: typeof CustomersIdRouteImport
-      parentRoute: typeof CustomersRoute
+    '/customers/$id/': {
+      id: '/customers/$id/'
+      path: '/customers/$id'
+      fullPath: '/customers/$id/'
+      preLoaderRoute: typeof CustomersIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/customers/$id/pay': {
       id: '/customers/$id/pay'
@@ -271,43 +272,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface CustomersIdRouteChildren {
-  CustomersIdAddRoute: typeof CustomersIdAddRoute
-  CustomersIdPayRoute: typeof CustomersIdPayRoute
-}
-
-const CustomersIdRouteChildren: CustomersIdRouteChildren = {
-  CustomersIdAddRoute: CustomersIdAddRoute,
-  CustomersIdPayRoute: CustomersIdPayRoute,
-}
-
-const CustomersIdRouteWithChildren = CustomersIdRoute._addFileChildren(
-  CustomersIdRouteChildren,
-)
-
-interface CustomersRouteChildren {
-  CustomersIdRoute: typeof CustomersIdRouteWithChildren
-  CustomersNewRoute: typeof CustomersNewRoute
-}
-
-const CustomersRouteChildren: CustomersRouteChildren = {
-  CustomersIdRoute: CustomersIdRouteWithChildren,
-  CustomersNewRoute: CustomersNewRoute,
-}
-
-const CustomersRouteWithChildren = CustomersRoute._addFileChildren(
-  CustomersRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
-  CustomersRoute: CustomersRouteWithChildren,
   DashboardRoute: DashboardRoute,
   LanguageRoute: LanguageRoute,
   PinLockRoute: PinLockRoute,
   PinSetupRoute: PinSetupRoute,
   SettingsRoute: SettingsRoute,
+  CustomersIndexRoute: CustomersIndexRoute,
+  CustomersIdIndexRoute: CustomersIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

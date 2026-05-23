@@ -8,7 +8,7 @@ import { Avatar } from "./dashboard";
 import { openWhatsAppReminder } from "@/lib/whatsapp";
 import { generateCustomerStatementPdf } from "@/lib/pdf";
 
-export const Route = createFileRoute("/customers/$id")({
+export const Route = createFileRoute("/customers/$id/")({
   component: CustomerDetail,
 });
 

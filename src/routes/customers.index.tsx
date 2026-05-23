@@ -6,7 +6,7 @@ import { useStore, type Customer } from "@/lib/store";
 import { Plus, Search, Flame } from "lucide-react";
 import { Avatar } from "./dashboard";
 
-export const Route = createFileRoute("/customers")({
+export const Route = createFileRoute("/customers/")({
   component: CustomersList,
 });
 
