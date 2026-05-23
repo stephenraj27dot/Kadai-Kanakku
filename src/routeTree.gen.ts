@@ -63,9 +63,9 @@ const CustomersIndexRoute = CustomersIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CustomersNewRoute = CustomersNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => CustomersRoute,
+  id: '/customers/new',
+  path: '/customers/new',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CustomersIdIndexRoute = CustomersIdIndexRouteImport.update({
   id: '/customers/$id/',
@@ -179,6 +179,7 @@ export interface RootRouteChildren {
   PinLockRoute: typeof PinLockRoute
   PinSetupRoute: typeof PinSetupRoute
   SettingsRoute: typeof SettingsRoute
+  CustomersNewRoute: typeof CustomersNewRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
   CustomersIdIndexRoute: typeof CustomersIdIndexRoute
 }
@@ -243,10 +244,10 @@ declare module '@tanstack/react-router' {
     }
     '/customers/new': {
       id: '/customers/new'
-      path: '/new'
+      path: '/customers/new'
       fullPath: '/customers/new'
       preLoaderRoute: typeof CustomersNewRouteImport
-      parentRoute: typeof CustomersRoute
+      parentRoute: typeof rootRouteImport
     }
     '/customers/$id/': {
       id: '/customers/$id/'
@@ -280,6 +281,7 @@ const rootRouteChildren: RootRouteChildren = {
   PinLockRoute: PinLockRoute,
   PinSetupRoute: PinSetupRoute,
   SettingsRoute: SettingsRoute,
+  CustomersNewRoute: CustomersNewRoute,
   CustomersIndexRoute: CustomersIndexRoute,
   CustomersIdIndexRoute: CustomersIdIndexRoute,
 }

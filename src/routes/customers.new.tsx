@@ -61,7 +61,7 @@ function AddCustomer() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className={`mt-2 w-full h-14 px-4 rounded-2xl bg-card border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-base shadow-sm ${ta ? "font-tamil" : ""}`}
-            placeholder="98765 43210"
+            placeholder="00000 00000"
           />
         </label>
 

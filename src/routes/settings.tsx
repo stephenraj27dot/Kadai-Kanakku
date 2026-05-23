@@ -180,22 +180,6 @@ function SettingsPage() {
               </button>
             }
           />
-          <div className="h-px bg-border mx-4" />
-          <Row
-            icon={<Download className="size-5" />}
-            tint="pending"
-            title={ta ? "முழு அறிக்கை" : "Export Data"}
-            subtitle={ta ? "எல்லா விவரங்களையும் PDF ஆக எடுக்க" : "Download all records as PDF"}
-            ta={ta}
-            right={
-              <button
-                onClick={() => window.print()}
-                className="px-4 h-9 rounded-full bg-card border border-border text-xs font-bold shadow-sm press-scale text-foreground"
-              >
-                <span className={ta ? "font-tamil" : ""}>PDF</span>
-              </button>
-            }
-          />
         </Section>
         
         {/* Account Actions */}
