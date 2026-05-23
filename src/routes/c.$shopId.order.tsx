@@ -24,8 +24,22 @@ function CustomerOrder() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const [canPrice, setCanPrice] = useState(30)
 
-  const PRICE_PER_CAN = 30 // Shop owner can configure this later
+  // Fetch shop's can_price when component mounts
+  useEffect(() => {
+    async function loadShopProfile() {
+      const { data } = await supabase
+        .from('shop_profiles')
+        .select('can_price')
+        .eq('owner_id', shopId)
+        .limit(1)
+      if (data && data.length > 0) {
+        setCanPrice(data[0].can_price || 30)
+      }
+    }
+    loadShopProfile()
+  }, [shopId])
 
   const handleOrder = async () => {
     setLoading(true)
@@ -57,7 +71,7 @@ function CustomerOrder() {
       customer_id: customer.id,
       quantity,
       delivery_date: new Date(deliveryDate).getTime(),
-      amount: quantity * PRICE_PER_CAN,
+      amount: quantity * canPrice,
       status: 'pending',
       created_at: Date.now(),
     })
@@ -155,7 +169,7 @@ function CustomerOrder() {
             </div>
             <div className={`mt-4 text-center text-sm text-muted-foreground ${ta ? 'font-tamil' : 'font-display'}`}>
               {ta ? 'மொத்தம்:' : 'Total:'}{' '}
-              <span className="font-bold text-foreground">₹{quantity * PRICE_PER_CAN}</span>
+              <span className="font-bold text-foreground">₹{quantity * canPrice}</span>
             </div>
           </div>
 

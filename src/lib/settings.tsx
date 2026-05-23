@@ -9,6 +9,8 @@ type SettingsCtx = {
   setShopName: (n: string) => void;
   shopPhone: string;
   setShopPhone: (p: string) => void;
+  canPrice: number;
+  setCanPrice: (p: number) => void;
   pinHash: string | null;
   setPinHash: (h: string | null) => void;
   isPinSetup: boolean;
@@ -22,6 +24,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("system");
   const [shopName, setShopNameState] = useState("Subramaniyan Stores");
   const [shopPhone, setShopPhoneState] = useState("+91 98765 43210");
+  const [canPrice, setCanPriceState] = useState(30);
   const [pinHash, setPinHashState] = useState<string | null>(null);
   const [isUnlocked, setUnlocked] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -36,6 +39,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
     const savedShopPhone = localStorage.getItem("bb_shopPhone");
     if (savedShopPhone) setShopPhoneState(savedShopPhone);
+
+    const savedCanPrice = localStorage.getItem("bb_canPrice");
+    if (savedCanPrice) setCanPriceState(parseInt(savedCanPrice, 10));
 
     const savedPinHash = localStorage.getItem("bb_pinHash");
     if (savedPinHash) {
@@ -80,6 +86,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("bb_shopPhone", p);
   };
 
+  const setCanPrice = (p: number) => {
+    setCanPriceState(p);
+    localStorage.setItem("bb_canPrice", p.toString());
+  };
+
   const setPinHash = (h: string | null) => {
     setPinHashState(h);
     if (h) {
@@ -111,6 +122,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setShopName,
         shopPhone,
         setShopPhone,
+        canPrice,
+        setCanPrice,
         pinHash,
         setPinHash,
         isPinSetup: !!pinHash,

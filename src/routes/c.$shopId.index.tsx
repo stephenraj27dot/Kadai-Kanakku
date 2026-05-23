@@ -37,7 +37,11 @@ function CustomerDashboard() {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'balance' | 'orders'>('balance')
 
-  useEffect(() => { loadCustomerData() }, [])
+  useEffect(() => { 
+    let cleanupFunc: (() => void) | void;
+    loadCustomerData().then(c => { cleanupFunc = c; });
+    return () => { if (cleanupFunc) cleanupFunc(); }
+  }, [])
 
   const loadCustomerData = async () => {
     setLoading(true)
@@ -77,11 +81,28 @@ function CustomerDashboard() {
         .eq('customer_id', customer.id)
         .order('delivery_date', { ascending: false }).limit(10)
       setOrders(orderData || [])
+
+      // Realtime subscription
+      const channel = supabase.channel(`customer_data_${customer.id}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `customer_id=eq.${customer.id}` }, () => {
+          // Re-fetch on any change
+          supabase.from('orders').select('*').eq('customer_id', customer.id).order('delivery_date', { ascending: false }).limit(10).then(({ data }) => setOrders(data || []))
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'txns', filter: `customer_id=eq.${customer.id}` }, () => {
+          // Re-fetch txns
+          supabase.from('txns').select('*').eq('customer_id', customer.id).order('at', { ascending: false }).limit(10).then(({ data }) => setTxns(data || []))
+        })
+        .subscribe()
+
+      // Cleanup
+      return () => { supabase.removeChannel(channel) }
     } else {
       setProfile(null)
     }
     setLoading(false)
   }
+
+  // Effect is handled below
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -133,6 +154,25 @@ function CustomerDashboard() {
           </div>
         ) : profile ? (
           <div className="flex-1 px-4 py-4 space-y-4 overflow-y-auto pb-32">
+            {/* Quick Actions (Call / Feedback) */}
+            <div className="flex gap-2">
+              <a href={`tel:${profile?.shopPhone || ''}`}
+                className="flex-1 h-12 bg-background border border-border rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-sm">
+                <Phone className="size-4.5 text-primary" />
+                <span className={`text-xs font-bold ${ta ? 'font-tamil' : 'font-display'}`}>
+                  {ta ? 'அழைக்க' : 'Call'}
+                </span>
+              </a>
+              <button
+                onClick={() => navigate({ to: `/c/${shopId}/feedback` })}
+                className="flex-1 h-12 bg-background border border-border rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-sm">
+                <MessageSquare className="size-4.5 text-primary" />
+                <span className={`text-xs font-bold ${ta ? 'font-tamil' : 'font-display'}`}>
+                  {ta ? 'புகார் / கருத்து' : 'Feedback'}
+                </span>
+              </button>
+            </div>
+
             {/* Balance Card */}
             <div className={`rounded-3xl p-5 shadow-sm ${isOwed ? 'bg-red-50 border border-red-100' : 'bg-green-50 border border-green-100'}`}>
               <p className={`text-sm font-medium mb-1 ${ta ? 'font-tamil' : 'font-display'} ${isOwed ? 'text-red-500' : 'text-green-600'}`}>
@@ -223,24 +263,6 @@ function CustomerDashboard() {
               </div>
             )}
 
-            {/* Contact & Feedback */}
-            <div className="space-y-2 pt-2">
-              <a href={`tel:${profile?.shopPhone || ''}`}
-                className="w-full h-12 bg-background border border-border rounded-2xl flex items-center gap-3 px-4 active:scale-95 transition-transform shadow-sm">
-                <Phone className="size-4.5 text-primary" />
-                <span className={`text-sm font-medium ${ta ? 'font-tamil' : 'font-display'}`}>
-                  {ta ? 'கடைக்காரரை அழைக்கவும்' : 'Call Shop Owner'}
-                </span>
-              </a>
-              <button
-                onClick={() => navigate({ to: `/c/${shopId}/feedback` })}
-                className="w-full h-12 bg-background border border-border rounded-2xl flex items-center gap-3 px-4 active:scale-95 transition-transform shadow-sm">
-                <MessageSquare className="size-4.5 text-primary" />
-                <span className={`text-sm font-medium ${ta ? 'font-tamil' : 'font-display'}`}>
-                  {ta ? 'புகார் / கருத்து தெரிவிக்கவும்' : 'Send Feedback / Complaint'}
-                </span>
-              </button>
-            </div>
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">

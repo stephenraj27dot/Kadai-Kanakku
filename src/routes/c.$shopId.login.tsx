@@ -18,6 +18,15 @@ function CustomerLogin() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  import { useEffect } from 'react'
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate({ to: `/c/${shopId}`, replace: true })
+      }
+    })
+  }, [shopId, navigate])
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -143,6 +152,19 @@ function CustomerLogin() {
           >
             {isLogin ? "புதிய கணக்கை உருவாக்கவும்" : "உள்நுழையவும்"}
           </button>
+        </div>
+
+        {/* Link back to shop owner login for testing/owners */}
+        <div className="mt-8 text-center border-t border-border pt-6">
+          <p className="text-xs text-muted-foreground font-tamil mb-2">
+            கடைக்காரரா நீங்கள்?
+          </p>
+          <a
+            href="/"
+            className="text-xs text-primary font-bold hover:underline font-tamil"
+          >
+            Shop Owner Login
+          </a>
         </div>
       </div>
     </PhoneShell>

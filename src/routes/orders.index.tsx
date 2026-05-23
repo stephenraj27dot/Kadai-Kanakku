@@ -31,6 +31,15 @@ function OrdersDashboard() {
 
   useEffect(() => {
     fetchOrders()
+
+    if (!session) return
+    const channel = supabase.channel(`shop_orders_${session.user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `shop_owner_id=eq.${session.user.id}` }, () => {
+        fetchOrders()
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
   }, [session])
 
   const fetchOrders = async () => {

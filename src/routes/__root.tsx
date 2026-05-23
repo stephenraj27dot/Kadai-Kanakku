@@ -147,10 +147,17 @@ function AppGuard({ children }: { children: React.ReactNode }) {
 }
 
 function GlobalSplash({ children }: { children: React.ReactNode }) {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    return sessionStorage.getItem('splash_shown') !== 'true';
+  });
   const [phase, setPhase] = useState<"logo" | "text" | "loading" | "done">("logo");
 
   useEffect(() => {
+    if (!showSplash) return;
+    
+    // Set immediately so manual refresh during animation doesn't re-trigger it
+    sessionStorage.setItem('splash_shown', 'true');
+    
     // Faster animation sequence
     const t1 = setTimeout(() => setPhase("text"), 200);
     const t2 = setTimeout(() => setPhase("loading"), 400);
@@ -159,7 +166,7 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
       setTimeout(() => setShowSplash(false), 300); // quick fade out
     }, 1500); // 1.5s total splash time
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, []);
+  }, [showSplash]);
 
   if (!showSplash) return <>{children}</>;
 
