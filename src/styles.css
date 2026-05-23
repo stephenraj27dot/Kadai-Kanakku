@@ -54,6 +54,10 @@
 /* ══════════════════════════════════════════════
    LIGHT MODE — Forest Canopy × Tamil Retail
 ══════════════════════════════════════════════ */
+html, body {
+  scroll-behavior: smooth;
+}
+
 :root {
   --radius: 1rem;
 
