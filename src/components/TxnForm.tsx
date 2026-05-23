@@ -28,12 +28,26 @@ export function TxnForm({ kind, customer, onSubmit, back }: Props) {
 
   const bal = balanceOf(customer);
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const n = Number(amount);
+  const evaluateMath = (expr: string) => {
+    try {
+      const clean = expr.replace(/[+\-]+$/, "");
+      if (!clean) return 0;
+      const res = Function(`'use strict'; return (${clean})`)();
+      return Number.isFinite(res) && res > 0 ? res : 0;
+    } catch (e) {
+      return 0;
+    }
+  };
+
+  const submit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const n = evaluateMath(amount);
     if (!n || n <= 0) return;
     onSubmit(n, note.trim() || undefined);
   };
+
+  const liveTotal = evaluateMath(amount);
+  const hasOperator = amount.includes("+") || amount.includes("-");
 
   return (
     <PhoneShell hideNav>
@@ -55,7 +69,14 @@ export function TxnForm({ kind, customer, onSubmit, back }: Props) {
 
       <form onSubmit={submit} className="px-5 pt-6 pb-8 flex flex-col min-h-[calc(100vh-140px)]">
         <div>
-          <p className={`text-sm font-medium text-muted-foreground ${ta ? "font-tamil" : ""}`}>{prompt}</p>
+          <div className="flex items-center justify-between">
+            <p className={`text-sm font-medium text-muted-foreground ${ta ? "font-tamil" : ""}`}>{prompt}</p>
+            {hasOperator && liveTotal > 0 && (
+              <div className={`text-sm font-bold animate-fade-in ${tone === "pending" ? "text-pending" : "text-primary"}`}>
+                = {formatMoney(liveTotal)}
+              </div>
+            )}
+          </div>
           <div className="mt-3 flex items-baseline gap-2 overflow-x-auto pb-1">
             <span className={`text-4xl font-bold ${tone === "pending" ? "text-pending" : "text-primary"}`}>₹</span>
             <div className={`flex-1 text-5xl font-bold tracking-tight ${!amount ? (tone === "pending" ? "text-pending/30" : "text-primary/30") : (tone === "pending" ? "text-pending" : "text-primary")}`}>
@@ -69,7 +90,11 @@ export function TxnForm({ kind, customer, onSubmit, back }: Props) {
           <NumPad
             value={amount}
             onChange={setAmount}
-            onQuickAdd={(q) => setAmount(String((Number(amount) || 0) + q))}
+            onCalculate={submit}
+            onQuickAdd={(q) => {
+              const current = evaluateMath(amount);
+              setAmount(String(current + q));
+            }}
           />
 
           {!showNote ? (
@@ -96,7 +121,7 @@ export function TxnForm({ kind, customer, onSubmit, back }: Props) {
 
         <button
           type="submit"
-          disabled={!amount || Number(amount) <= 0}
+          disabled={!amount || liveTotal <= 0}
           className={`mt-8 w-full h-14 rounded-2xl text-lg font-semibold shadow-soft active:scale-[0.98] transition-transform disabled:opacity-40 ${
             tone === "pending" ? "bg-pending text-pending-foreground" : "bg-primary text-primary-foreground"
           }`}
