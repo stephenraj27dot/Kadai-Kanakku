@@ -119,10 +119,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const addCustomer: Ctx["addCustomer"] = async ({ name, phone, address, notes, opening }) => {
-    if (!user) return undefined;
+    if (!user) {
+      alert("Not logged in. Please login first.");
+      return undefined;
+    }
     const now = Date.now();
 
     // 1. Insert Customer
+    console.log("Adding customer for user:", user.id, { name, phone, address, notes });
     const { data: cData, error: cErr } = await supabase
       .from('customers')
       .insert({
@@ -137,7 +141,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       .single();
 
     if (cErr) {
-      console.error(cErr);
+      console.error("Supabase insert error:", cErr);
+      alert("Error saving customer: " + cErr.message + "\n\nHint: Run the SQL in Supabase SQL Editor.");
       return undefined;
     }
 
