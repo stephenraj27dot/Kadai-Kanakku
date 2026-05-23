@@ -18,9 +18,12 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CustomersIndexRouteImport } from './routes/customers.index'
 import { Route as CustomersNewRouteImport } from './routes/customers.new'
+import { Route as CShopIdRouteImport } from './routes/c.$shopId'
 import { Route as CustomersIdIndexRouteImport } from './routes/customers.$id.index'
+import { Route as CShopIdIndexRouteImport } from './routes/c.$shopId.index'
 import { Route as CustomersIdPayRouteImport } from './routes/customers.$id.pay'
 import { Route as CustomersIdAddRouteImport } from './routes/customers.$id.add'
+import { Route as CShopIdLoginRouteImport } from './routes/c.$shopId.login'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -67,10 +70,20 @@ const CustomersNewRoute = CustomersNewRouteImport.update({
   path: '/customers/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CShopIdRoute = CShopIdRouteImport.update({
+  id: '/c/$shopId',
+  path: '/c/$shopId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CustomersIdIndexRoute = CustomersIdIndexRouteImport.update({
   id: '/customers/$id/',
   path: '/customers/$id/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CShopIdIndexRoute = CShopIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CShopIdRoute,
 } as any)
 const CustomersIdPayRoute = CustomersIdPayRouteImport.update({
   id: '/customers/$id/pay',
@@ -82,6 +95,11 @@ const CustomersIdAddRoute = CustomersIdAddRouteImport.update({
   path: '/customers/$id/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CShopIdLoginRoute = CShopIdLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => CShopIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -91,10 +109,13 @@ export interface FileRoutesByFullPath {
   '/pin-lock': typeof PinLockRoute
   '/pin-setup': typeof PinSetupRoute
   '/settings': typeof SettingsRoute
+  '/c/$shopId': typeof CShopIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
   '/customers/': typeof CustomersIndexRoute
+  '/c/$shopId/login': typeof CShopIdLoginRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
+  '/c/$shopId/': typeof CShopIdIndexRoute
   '/customers/$id/': typeof CustomersIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -107,8 +128,10 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/customers/new': typeof CustomersNewRoute
   '/customers': typeof CustomersIndexRoute
+  '/c/$shopId/login': typeof CShopIdLoginRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
+  '/c/$shopId': typeof CShopIdIndexRoute
   '/customers/$id': typeof CustomersIdIndexRoute
 }
 export interface FileRoutesById {
@@ -120,10 +143,13 @@ export interface FileRoutesById {
   '/pin-lock': typeof PinLockRoute
   '/pin-setup': typeof PinSetupRoute
   '/settings': typeof SettingsRoute
+  '/c/$shopId': typeof CShopIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
   '/customers/': typeof CustomersIndexRoute
+  '/c/$shopId/login': typeof CShopIdLoginRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
+  '/c/$shopId/': typeof CShopIdIndexRoute
   '/customers/$id/': typeof CustomersIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -136,10 +162,13 @@ export interface FileRouteTypes {
     | '/pin-lock'
     | '/pin-setup'
     | '/settings'
+    | '/c/$shopId'
     | '/customers/new'
     | '/customers/'
+    | '/c/$shopId/login'
     | '/customers/$id/add'
     | '/customers/$id/pay'
+    | '/c/$shopId/'
     | '/customers/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -152,8 +181,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/customers/new'
     | '/customers'
+    | '/c/$shopId/login'
     | '/customers/$id/add'
     | '/customers/$id/pay'
+    | '/c/$shopId'
     | '/customers/$id'
   id:
     | '__root__'
@@ -164,10 +195,13 @@ export interface FileRouteTypes {
     | '/pin-lock'
     | '/pin-setup'
     | '/settings'
+    | '/c/$shopId'
     | '/customers/new'
     | '/customers/'
+    | '/c/$shopId/login'
     | '/customers/$id/add'
     | '/customers/$id/pay'
+    | '/c/$shopId/'
     | '/customers/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -179,6 +213,7 @@ export interface RootRouteChildren {
   PinLockRoute: typeof PinLockRoute
   PinSetupRoute: typeof PinSetupRoute
   SettingsRoute: typeof SettingsRoute
+  CShopIdRoute: typeof CShopIdRouteWithChildren
   CustomersNewRoute: typeof CustomersNewRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
   CustomersIdAddRoute: typeof CustomersIdAddRoute
@@ -251,12 +286,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/c/$shopId': {
+      id: '/c/$shopId'
+      path: '/c/$shopId'
+      fullPath: '/c/$shopId'
+      preLoaderRoute: typeof CShopIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/customers/$id/': {
       id: '/customers/$id/'
       path: '/customers/$id'
       fullPath: '/customers/$id/'
       preLoaderRoute: typeof CustomersIdIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/c/$shopId/': {
+      id: '/c/$shopId/'
+      path: '/'
+      fullPath: '/c/$shopId/'
+      preLoaderRoute: typeof CShopIdIndexRouteImport
+      parentRoute: typeof CShopIdRoute
     }
     '/customers/$id/pay': {
       id: '/customers/$id/pay'
@@ -272,8 +321,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersIdAddRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/c/$shopId/login': {
+      id: '/c/$shopId/login'
+      path: '/login'
+      fullPath: '/c/$shopId/login'
+      preLoaderRoute: typeof CShopIdLoginRouteImport
+      parentRoute: typeof CShopIdRoute
+    }
   }
 }
+
+interface CShopIdRouteChildren {
+  CShopIdLoginRoute: typeof CShopIdLoginRoute
+  CShopIdIndexRoute: typeof CShopIdIndexRoute
+}
+
+const CShopIdRouteChildren: CShopIdRouteChildren = {
+  CShopIdLoginRoute: CShopIdLoginRoute,
+  CShopIdIndexRoute: CShopIdIndexRoute,
+}
+
+const CShopIdRouteWithChildren =
+  CShopIdRoute._addFileChildren(CShopIdRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -283,6 +352,7 @@ const rootRouteChildren: RootRouteChildren = {
   PinLockRoute: PinLockRoute,
   PinSetupRoute: PinSetupRoute,
   SettingsRoute: SettingsRoute,
+  CShopIdRoute: CShopIdRouteWithChildren,
   CustomersNewRoute: CustomersNewRoute,
   CustomersIndexRoute: CustomersIndexRoute,
   CustomersIdAddRoute: CustomersIdAddRoute,

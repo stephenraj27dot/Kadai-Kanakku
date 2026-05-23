@@ -114,7 +114,7 @@ function AppGuard({ children }: { children: React.ReactNode }) {
     if (loading) return;
     
     const path = router.state.location.pathname;
-    const isPublic = path === "/" || path === "/language" || path === "/pin-setup" || path === "/pin-lock" || path === "/auth";
+    const isPublic = path === "/" || path === "/language" || path === "/pin-setup" || path === "/pin-lock" || path === "/auth" || path.startsWith("/c/");
     
     // Auth Check
     if (!session && !isPublic) {
