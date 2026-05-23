@@ -2,6 +2,8 @@ import { useState } from "react";
 import { PhoneShell, TopBar } from "./PhoneShell";
 import { useI18n, formatMoney } from "@/lib/i18n";
 import { useStore, type Customer } from "@/lib/store";
+import { NumPad } from "./NumPad";
+import { FileText } from "lucide-react";
 
 type Props = {
   kind: "debit" | "credit";
@@ -22,7 +24,8 @@ export function TxnForm({ kind, customer, onSubmit, back }: Props) {
   const prompt = isDebit ? t("addAmount") : t("payAmount");
   const tone = isDebit ? "pending" : "primary";
 
-  const quick = [50, 100, 200, 500, 1000];
+  const [showNote, setShowNote] = useState(false);
+
   const bal = balanceOf(customer);
 
   const submit = (e: React.FormEvent) => {
@@ -50,46 +53,46 @@ export function TxnForm({ kind, customer, onSubmit, back }: Props) {
         </div>
       </div>
 
-      <form onSubmit={submit} className="px-5 pt-6 pb-8">
-        <p className={`text-sm font-medium text-muted-foreground ${ta ? "font-tamil" : ""}`}>{prompt}</p>
-        <div className="mt-3 flex items-baseline gap-2">
-          <span className={`text-4xl font-bold ${tone === "pending" ? "text-pending" : "text-primary"}`}>₹</span>
-          <input
-            autoFocus
-            type="number"
-            inputMode="decimal"
+      <form onSubmit={submit} className="px-5 pt-6 pb-8 flex flex-col min-h-[calc(100vh-140px)]">
+        <div>
+          <p className={`text-sm font-medium text-muted-foreground ${ta ? "font-tamil" : ""}`}>{prompt}</p>
+          <div className="mt-3 flex items-baseline gap-2 overflow-x-auto pb-1">
+            <span className={`text-4xl font-bold ${tone === "pending" ? "text-pending" : "text-primary"}`}>₹</span>
+            <div className={`flex-1 text-5xl font-bold tracking-tight ${!amount ? (tone === "pending" ? "text-pending/30" : "text-primary/30") : (tone === "pending" ? "text-pending" : "text-primary")}`}>
+              {amount || "0"}
+            </div>
+          </div>
+          <div className="mt-1 h-px bg-border" />
+        </div>
+
+        <div className="mt-6 flex-1 flex flex-col justify-end gap-6">
+          <NumPad
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0"
-            className={`flex-1 bg-transparent outline-none text-5xl font-bold tracking-tight ${
-              tone === "pending" ? "text-pending placeholder:text-pending/30" : "text-primary placeholder:text-primary/30"
-            }`}
+            onChange={setAmount}
+            onQuickAdd={(q) => setAmount(String((Number(amount) || 0) + q))}
           />
-        </div>
-        <div className="mt-1 h-px bg-border" />
 
-        <div className="mt-5 flex flex-wrap gap-2">
-          {quick.map((q) => (
+          {!showNote ? (
             <button
-              key={q}
               type="button"
-              onClick={() => setAmount(String((Number(amount) || 0) + q))}
-              className="px-4 h-10 rounded-full bg-muted text-sm font-semibold active:scale-95 transition-transform"
+              onClick={() => setShowNote(true)}
+              className={`flex items-center justify-center gap-2 h-12 rounded-2xl bg-card border border-border text-muted-foreground font-semibold press-scale ${ta ? "font-tamil" : ""}`}
             >
-              +₹{q}
+              <FileText className="size-4" /> {ta ? "குறிப்பு எழுது (தேவைப்பட்டால்)" : "Add Note (Optional)"}
             </button>
-          ))}
+          ) : (
+            <label className="block animate-fade-in-up">
+              <span className={`text-sm font-medium text-muted-foreground ${ta ? "font-tamil" : ""}`}>{t("note")}</span>
+              <input
+                autoFocus
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder={ta ? "உதா: அரிசி, எண்ணெய்" : "e.g. Rice, oil"}
+                className={`mt-2 w-full h-14 px-4 rounded-2xl bg-card border border-border focus:border-primary focus:outline-none text-base ${ta ? "placeholder:font-tamil" : ""}`}
+              />
+            </label>
+          )}
         </div>
-
-        <label className="block mt-7">
-          <span className={`text-sm font-medium text-muted-foreground ${ta ? "font-tamil" : ""}`}>{t("note")}</span>
-          <input
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder={ta ? "உதா: அரிசி, எண்ணெய்" : "e.g. Rice, oil"}
-            className={`mt-2 w-full h-14 px-4 rounded-2xl bg-card border border-border focus:border-primary focus:outline-none text-base ${ta ? "placeholder:font-tamil" : ""}`}
-          />
-        </label>
 
         <button
           type="submit"
