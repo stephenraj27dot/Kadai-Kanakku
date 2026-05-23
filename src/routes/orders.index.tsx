@@ -3,6 +3,7 @@ import { PhoneShell, TopBar } from '@/components/PhoneShell'
 import { supabase } from '@/lib/supabase'
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/lib/auth'
+import { useI18n } from '@/lib/i18n'
 import { Droplets, CheckCircle, Clock, XCircle, ChevronRight } from 'lucide-react'
 
 export const Route = createFileRoute('/orders/')({
@@ -21,6 +22,8 @@ type Order = {
 
 function OrdersDashboard() {
   const { session } = useAuth()
+  const { lang } = useI18n()
+  const ta = lang === 'ta'
   const navigate = useNavigate()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -43,10 +46,7 @@ function OrdersDashboard() {
   }
 
   const markDelivered = async (order: Order) => {
-    // 1. Update order status
     await supabase.from('orders').update({ status: 'delivered' }).eq('id', order.id)
-
-    // 2. Add debit transaction to customer balance
     const { data: cust } = await supabase
       .from('customers')
       .select('id, user_id')
@@ -59,11 +59,10 @@ function OrdersDashboard() {
         user_id: cust.user_id,
         type: 'debit',
         amount: order.amount,
-        note: `${order.quantity} தண்ணீர் கேன் டெலிவரி`,
+        note: ta ? `${order.quantity} தண்ணீர் கேன் டெலிவரி` : `${order.quantity} Water cans delivered`,
         at: Date.now(),
       })
     }
-
     fetchOrders()
   }
 
@@ -82,9 +81,9 @@ function OrdersDashboard() {
   }
 
   const statusLabel = (status: string) => {
-    if (status === 'pending') return 'காத்திருக்கிறது'
-    if (status === 'delivered') return 'டெலிவரி ஆனது'
-    return 'ரத்து செய்யப்பட்டது'
+    if (status === 'pending') return ta ? 'காத்திருக்கிறது' : 'Pending'
+    if (status === 'delivered') return ta ? 'டெலிவரி ஆனது' : 'Delivered'
+    return ta ? 'ரத்து செய்யப்பட்டது' : 'Cancelled'
   }
 
   return (
@@ -93,14 +92,18 @@ function OrdersDashboard() {
         {/* Header */}
         <div className="bg-primary px-5 pt-12 pb-5 text-primary-foreground rounded-b-3xl">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-xl font-bold font-tamil">டெலிவரி ஆர்டர்கள்</h1>
+            <h1 className={`text-xl font-bold ${ta ? 'font-tamil' : ''}`}>
+              {ta ? 'டெலிவரி ஆர்டர்கள்' : 'Delivery Orders'}
+            </h1>
             {pendingCount > 0 && (
-              <span className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full font-tamil">
-                {pendingCount} புதிய ஆர்டர்
+              <span className={`bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full ${ta ? 'font-tamil' : ''}`}>
+                {pendingCount} {ta ? 'புதிய ஆர்டர்' : 'New Orders'}
               </span>
             )}
           </div>
-          <p className="text-sm opacity-75 font-tamil">தண்ணீர் கேன் டெலிவரி நிர்வாகம்</p>
+          <p className={`text-sm opacity-75 ${ta ? 'font-tamil' : ''}`}>
+            {ta ? 'தண்ணீர் கேன் டெலிவரி நிர்வாகம்' : 'Water Can Delivery Management'}
+          </p>
         </div>
 
         {/* Filter tabs */}
@@ -109,13 +112,13 @@ function OrdersDashboard() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all font-tamil ${
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${ta ? 'font-tamil' : ''} ${
                 filter === f
                   ? 'bg-primary text-primary-foreground shadow-soft'
                   : 'bg-background text-muted-foreground border border-border'
               }`}
             >
-              {f === 'pending' ? 'காத்திருக்கும்' : f === 'delivered' ? 'டெலிவரி ஆனது' : 'அனைத்தும்'}
+              {f === 'pending' ? (ta ? 'காத்திருக்கும்' : 'Pending') : f === 'delivered' ? (ta ? 'டெலிவரி ஆனது' : 'Delivered') : (ta ? 'அனைத்தும்' : 'All')}
             </button>
           ))}
         </div>
@@ -129,7 +132,9 @@ function OrdersDashboard() {
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center opacity-50">
               <Droplets className="size-16 mb-4" strokeWidth={1} />
-              <p className="font-tamil font-medium">ஆர்டர்கள் எதுவும் இல்லை</p>
+              <p className={`font-medium ${ta ? 'font-tamil' : ''}`}>
+                {ta ? 'ஆர்டர்கள் எதுவும் இல்லை' : 'No orders found'}
+              </p>
             </div>
           ) : (
             filtered.map(order => (
@@ -141,17 +146,17 @@ function OrdersDashboard() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     {statusIcon(order.status)}
-                    <span className="text-xs font-medium font-tamil">{statusLabel(order.status)}</span>
+                    <span className={`text-xs font-medium ${ta ? 'font-tamil' : ''}`}>{statusLabel(order.status)}</span>
                   </div>
                 </div>
 
                 <div className="mt-3 flex items-center gap-4">
                   <div className="flex items-center gap-1.5 bg-primary/8 text-primary px-3 py-1.5 rounded-xl">
                     <Droplets className="size-4" />
-                    <span className="font-bold text-sm font-display">{order.quantity} கேன்</span>
+                    <span className={`font-bold text-sm ${ta ? 'font-tamil' : ''}`}>{order.quantity} {ta ? 'கேன்' : 'Cans'}</span>
                   </div>
                   <div className="text-sm text-muted-foreground font-display">
-                    📅 {new Date(order.delivery_date).toLocaleDateString('ta-IN')}
+                    📅 {new Date(order.delivery_date).toLocaleDateString(ta ? 'ta-IN' : 'en-IN')}
                   </div>
                   <div className="ml-auto font-bold text-foreground font-display">₹{order.amount}</div>
                 </div>
@@ -160,10 +165,10 @@ function OrdersDashboard() {
                   <div className="mt-3 flex gap-2">
                     <button
                       onClick={() => markDelivered(order)}
-                      className="flex-1 h-10 bg-primary text-primary-foreground rounded-xl text-sm font-bold font-tamil flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-soft"
+                      className={`flex-1 h-10 bg-primary text-primary-foreground rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform shadow-soft ${ta ? 'font-tamil' : ''}`}
                     >
                       <CheckCircle className="size-4" />
-                      டெலிவரி ஆச்சு
+                      {ta ? 'டெலிவரி ஆச்சு' : 'Mark Delivered'}
                     </button>
                     <button
                       onClick={() => cancelOrder(order.id)}
