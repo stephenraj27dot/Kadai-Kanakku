@@ -79,17 +79,7 @@ function Splash() {
             animation: "splashIcon 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both",
           }}
         >
-          {/* Shop/Store SVG icon */}
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <rect x="8" y="28" width="48" height="28" rx="4" fill="white" fillOpacity="0.9"/>
-            <path d="M8 28L14 10h36l6 18H8Z" fill="white" fillOpacity="0.7"/>
-            <rect x="24" y="38" width="16" height="18" rx="3" fill="oklch(0.52 0.19 148)"/>
-            <rect x="10" y="36" width="12" height="10" rx="2" fill="oklch(0.52 0.19 148)" fillOpacity="0.7"/>
-            <rect x="42" y="36" width="12" height="10" rx="2" fill="oklch(0.52 0.19 148)" fillOpacity="0.7"/>
-            <path d="M14 10L10 28" stroke="white" strokeOpacity="0.4" strokeWidth="1"/>
-            <path d="M50 10L54 28" stroke="white" strokeOpacity="0.4" strokeWidth="1"/>
-            <path d="M32 10V28" stroke="white" strokeOpacity="0.4" strokeWidth="1"/>
-          </svg>
+          <img src="/logo.png" alt="Kadai Kanakku" style={{ width: 80, height: 80, borderRadius: 16 }} />
         </div>
 
         {/* App name */}
