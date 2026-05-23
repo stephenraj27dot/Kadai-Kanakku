@@ -48,7 +48,13 @@ function AuthPage() {
       }
     } else {
       // Customer Login / Signup
-      const cleanPhone = phone.replace(/\D/g, '');
+      let cleanPhone = phone.replace(/\D/g, '');
+      
+      // If the user typed 91 at the beginning, strip it out to get the 10-digit number
+      if (cleanPhone.startsWith('91') && cleanPhone.length > 10) {
+        cleanPhone = cleanPhone.substring(cleanPhone.length - 10);
+      }
+
       if (cleanPhone.length < 10) {
         setError(ta ? 'சரியான மொபைல் எண்ணை உள்ளிடவும்' : 'Please enter a valid phone number');
         setLoading(false);
