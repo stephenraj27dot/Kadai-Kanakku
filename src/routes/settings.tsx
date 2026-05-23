@@ -4,7 +4,7 @@ import { PhoneShell, TopBar } from "@/components/PhoneShell";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useSettings, type Theme } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
-import { Cloud, Globe, Lock, CheckCircle2, Store, Moon, Sun, Monitor, Download, Edit2, Check, LogOut } from "lucide-react";
+import { Cloud, Globe, Lock, CheckCircle2, Store, Moon, Sun, Monitor, Download, Edit2, Check, LogOut, MessageSquare } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Users, Settings as SettingsIcon } from "lucide-react";
+import { Home, Users, Settings as SettingsIcon, Droplets } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export function PhoneShell({ children, hideNav = false }: { children: ReactNode; hideNav?: boolean }) {
@@ -25,6 +25,7 @@ function BottomNav() {
   const items = [
     { to: "/dashboard", icon: Home, label: t("dashboard") },
     { to: "/customers", icon: Users, label: t("customers") },
+    { to: "/orders", icon: Droplets, label: ta ? "டெலிவரி" : "Orders" },
     { to: "/settings", icon: SettingsIcon, label: t("settings") },
   ];
   return (

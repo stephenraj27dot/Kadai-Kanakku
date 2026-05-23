@@ -75,10 +75,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#16A34A" },
       { title: "Kadai Kanakku — Shop Khata for Tamil Nadu" },
       { name: "description", content: "Simple digital baki notebook for local shop owners. Track customer balances in Tamil and English." },
+      // iOS PWA support
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Kadai Kanakku" },
+      // Android PWA
+      { name: "mobile-web-app-capable", content: "yes" },
     ],
     links: [
       { rel: "icon", href: "/logo.png", type: "image/png" },
-      { rel: "apple-touch-icon", href: "/logo.png" },
+      // PWA manifest — must be explicitly linked in SSR (vite-plugin-pwa cannot inject this)
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      // Apple touch icons
+      { rel: "apple-touch-icon", href: "/icon-192.png" },
+      { rel: "apple-touch-icon", sizes: "192x192", href: "/icon-192.png" },
+      { rel: "apple-touch-icon", sizes: "512x512", href: "/icon-512.png" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },

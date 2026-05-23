@@ -3,7 +3,8 @@ import { PhoneShell, TopBar } from "@/components/PhoneShell";
 import { useI18n, formatMoney } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
 import { useSettings } from "@/lib/settings";
-import { Phone, ArrowDownLeft, ArrowUpRight, Minus, Plus, MessageCircle, FileText, Trash2, MapPin, AlignLeft, Flame } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { Phone, ArrowDownLeft, ArrowUpRight, Minus, Plus, MessageCircle, FileText, Trash2, MapPin, AlignLeft, Flame, Share2 } from "lucide-react";
 import { Avatar } from "./dashboard";
 import { openWhatsAppReminder } from "@/lib/whatsapp";
 import { generateCustomerStatementPdf } from "@/lib/pdf";
@@ -18,6 +19,7 @@ function CustomerDetail() {
   const ta = lang === "ta";
   const { getCustomer, balanceOf, statusOf, deleteCustomer } = useStore();
   const { shopName, shopPhone } = useSettings();
+  const { session } = useAuth();
   const navigate = useNavigate();
   
   const c = getCustomer(id);
