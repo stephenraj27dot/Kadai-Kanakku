@@ -201,7 +201,7 @@ function SettingsPage() {
         </Section>
 
         <p className="text-center text-xs font-medium text-muted-foreground pt-4 pb-8">
-          Baki Book v2.0 · Made with ♥ in Tamil Nadu
+          Kadai Kanakku v1 · Made with ♥ in Tamil Nadu
         </p>
       </div>
     </PhoneShell>
@@ -232,7 +232,7 @@ function Row({ icon, tint, title, subtitle, right, ta }: {
       <div className={`size-11 rounded-[0.8rem] flex items-center justify-center shrink-0 ${tintCls}`}>{icon}</div>
       <div className="flex-1 min-w-0">
         <div className={`font-bold text-sm ${ta ? "font-tamil" : ""}`}>{title}</div>
-        {subtitle && <div className={`text-xs text-muted-foreground mt-0.5 font-medium ${ta ? "font-tamil" : ""}`}>{subtitle}</div>}
+        {subtitle && <div className={`text-xs text-muted-foreground mt-0.5 font-medium truncate pr-2 ${ta ? "font-tamil" : ""}`}>{subtitle}</div>}
       </div>
       {right}
     </div>
