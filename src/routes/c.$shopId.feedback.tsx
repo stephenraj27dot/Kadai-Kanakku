@@ -30,15 +30,17 @@ function CustomerFeedback() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return navigate({ to: `/c/${shopId}/login`, replace: true })
 
-    const { data: customer } = await supabase
+    const { data: custRows } = await supabase
       .from('customers')
       .select('id')
       .eq('user_id', shopId)
       .eq('auth_user_id', user.id)
-      .single()
+      .limit(1)
+
+    const customer = custRows && custRows.length > 0 ? custRows[0] : null
 
     if (!customer) {
-      setError('உங்கள் கணக்கு கிடைக்கவில்லை.')
+      setError('உங்கள் கணக்கு கிடைக்கவில்லை. கடைக்காரரை தொடர்பு கொள்ளவும்.')
       setLoading(false)
       return
     }

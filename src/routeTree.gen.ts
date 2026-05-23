@@ -25,6 +25,7 @@ import { Route as CustomersIdIndexRouteImport } from './routes/customers.$id.ind
 import { Route as CShopIdIndexRouteImport } from './routes/c.$shopId.index'
 import { Route as CustomersIdPayRouteImport } from './routes/customers.$id.pay'
 import { Route as CustomersIdAddRouteImport } from './routes/customers.$id.add'
+import { Route as CShopIdSettingsRouteImport } from './routes/c.$shopId.settings'
 import { Route as CShopIdOrderRouteImport } from './routes/c.$shopId.order'
 import { Route as CShopIdLoginRouteImport } from './routes/c.$shopId.login'
 import { Route as CShopIdFeedbackRouteImport } from './routes/c.$shopId.feedback'
@@ -109,6 +110,11 @@ const CustomersIdAddRoute = CustomersIdAddRouteImport.update({
   path: '/customers/$id/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CShopIdSettingsRoute = CShopIdSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => CShopIdRoute,
+} as any)
 const CShopIdOrderRoute = CShopIdOrderRouteImport.update({
   id: '/order',
   path: '/order',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/c/$shopId/feedback': typeof CShopIdFeedbackRoute
   '/c/$shopId/login': typeof CShopIdLoginRoute
   '/c/$shopId/order': typeof CShopIdOrderRoute
+  '/c/$shopId/settings': typeof CShopIdSettingsRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
   '/c/$shopId/': typeof CShopIdIndexRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/c/$shopId/feedback': typeof CShopIdFeedbackRoute
   '/c/$shopId/login': typeof CShopIdLoginRoute
   '/c/$shopId/order': typeof CShopIdOrderRoute
+  '/c/$shopId/settings': typeof CShopIdSettingsRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
   '/c/$shopId': typeof CShopIdIndexRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/c/$shopId/feedback': typeof CShopIdFeedbackRoute
   '/c/$shopId/login': typeof CShopIdLoginRoute
   '/c/$shopId/order': typeof CShopIdOrderRoute
+  '/c/$shopId/settings': typeof CShopIdSettingsRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
   '/c/$shopId/': typeof CShopIdIndexRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/c/$shopId/feedback'
     | '/c/$shopId/login'
     | '/c/$shopId/order'
+    | '/c/$shopId/settings'
     | '/customers/$id/add'
     | '/customers/$id/pay'
     | '/c/$shopId/'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/c/$shopId/feedback'
     | '/c/$shopId/login'
     | '/c/$shopId/order'
+    | '/c/$shopId/settings'
     | '/customers/$id/add'
     | '/customers/$id/pay'
     | '/c/$shopId'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/c/$shopId/feedback'
     | '/c/$shopId/login'
     | '/c/$shopId/order'
+    | '/c/$shopId/settings'
     | '/customers/$id/add'
     | '/customers/$id/pay'
     | '/c/$shopId/'
@@ -385,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersIdAddRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/c/$shopId/settings': {
+      id: '/c/$shopId/settings'
+      path: '/settings'
+      fullPath: '/c/$shopId/settings'
+      preLoaderRoute: typeof CShopIdSettingsRouteImport
+      parentRoute: typeof CShopIdRoute
+    }
     '/c/$shopId/order': {
       id: '/c/$shopId/order'
       path: '/order'
@@ -413,6 +432,7 @@ interface CShopIdRouteChildren {
   CShopIdFeedbackRoute: typeof CShopIdFeedbackRoute
   CShopIdLoginRoute: typeof CShopIdLoginRoute
   CShopIdOrderRoute: typeof CShopIdOrderRoute
+  CShopIdSettingsRoute: typeof CShopIdSettingsRoute
   CShopIdIndexRoute: typeof CShopIdIndexRoute
 }
 
@@ -420,6 +440,7 @@ const CShopIdRouteChildren: CShopIdRouteChildren = {
   CShopIdFeedbackRoute: CShopIdFeedbackRoute,
   CShopIdLoginRoute: CShopIdLoginRoute,
   CShopIdOrderRoute: CShopIdOrderRoute,
+  CShopIdSettingsRoute: CShopIdSettingsRoute,
   CShopIdIndexRoute: CShopIdIndexRoute,
 }
 
