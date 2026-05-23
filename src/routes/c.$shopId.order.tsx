@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { PhoneShell } from '@/components/PhoneShell'
 import { supabase } from '@/lib/supabase'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Droplets, Calendar, Minus, Plus, CheckCircle, ChevronLeft } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 

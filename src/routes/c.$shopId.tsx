@@ -1,5 +1,4 @@
-import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
-import { supabase } from '@/lib/supabase'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/c/$shopId')({
   component: CustomerLayout,
