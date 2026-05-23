@@ -4,7 +4,8 @@ import { supabase } from '@/lib/supabase'
 import { useEffect, useState } from 'react'
 import { LogOut, User, Droplets, ReceiptText, MessageSquare, Phone, ChevronRight, Clock, CheckCircle, XCircle } from 'lucide-react'
 
-export const Route = createFileRoute('/c/$shopId/')({\n  component: CustomerDashboard,
+export const Route = createFileRoute('/c/$shopId/')({
+  component: CustomerDashboard,
 })
 
 type OrderItem = {

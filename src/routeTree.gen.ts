@@ -16,6 +16,8 @@ import { Route as LanguageRouteImport } from './routes/language'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrdersIndexRouteImport } from './routes/orders.index'
+import { Route as FeedbackIndexRouteImport } from './routes/feedback.index'
 import { Route as CustomersIndexRouteImport } from './routes/customers.index'
 import { Route as CustomersNewRouteImport } from './routes/customers.new'
 import { Route as CShopIdRouteImport } from './routes/c.$shopId'
@@ -23,7 +25,9 @@ import { Route as CustomersIdIndexRouteImport } from './routes/customers.$id.ind
 import { Route as CShopIdIndexRouteImport } from './routes/c.$shopId.index'
 import { Route as CustomersIdPayRouteImport } from './routes/customers.$id.pay'
 import { Route as CustomersIdAddRouteImport } from './routes/customers.$id.add'
+import { Route as CShopIdOrderRouteImport } from './routes/c.$shopId.order'
 import { Route as CShopIdLoginRouteImport } from './routes/c.$shopId.login'
+import { Route as CShopIdFeedbackRouteImport } from './routes/c.$shopId.feedback'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -58,6 +62,16 @@ const AuthRoute = AuthRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersIndexRoute = OrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedbackIndexRoute = FeedbackIndexRouteImport.update({
+  id: '/feedback/',
+  path: '/feedback/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CustomersIndexRoute = CustomersIndexRouteImport.update({
@@ -95,9 +109,19 @@ const CustomersIdAddRoute = CustomersIdAddRouteImport.update({
   path: '/customers/$id/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CShopIdOrderRoute = CShopIdOrderRouteImport.update({
+  id: '/order',
+  path: '/order',
+  getParentRoute: () => CShopIdRoute,
+} as any)
 const CShopIdLoginRoute = CShopIdLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => CShopIdRoute,
+} as any)
+const CShopIdFeedbackRoute = CShopIdFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
   getParentRoute: () => CShopIdRoute,
 } as any)
 
@@ -112,7 +136,11 @@ export interface FileRoutesByFullPath {
   '/c/$shopId': typeof CShopIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
   '/customers/': typeof CustomersIndexRoute
+  '/feedback/': typeof FeedbackIndexRoute
+  '/orders/': typeof OrdersIndexRoute
+  '/c/$shopId/feedback': typeof CShopIdFeedbackRoute
   '/c/$shopId/login': typeof CShopIdLoginRoute
+  '/c/$shopId/order': typeof CShopIdOrderRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
   '/c/$shopId/': typeof CShopIdIndexRoute
@@ -128,7 +156,11 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/customers/new': typeof CustomersNewRoute
   '/customers': typeof CustomersIndexRoute
+  '/feedback': typeof FeedbackIndexRoute
+  '/orders': typeof OrdersIndexRoute
+  '/c/$shopId/feedback': typeof CShopIdFeedbackRoute
   '/c/$shopId/login': typeof CShopIdLoginRoute
+  '/c/$shopId/order': typeof CShopIdOrderRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
   '/c/$shopId': typeof CShopIdIndexRoute
@@ -146,7 +178,11 @@ export interface FileRoutesById {
   '/c/$shopId': typeof CShopIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
   '/customers/': typeof CustomersIndexRoute
+  '/feedback/': typeof FeedbackIndexRoute
+  '/orders/': typeof OrdersIndexRoute
+  '/c/$shopId/feedback': typeof CShopIdFeedbackRoute
   '/c/$shopId/login': typeof CShopIdLoginRoute
+  '/c/$shopId/order': typeof CShopIdOrderRoute
   '/customers/$id/add': typeof CustomersIdAddRoute
   '/customers/$id/pay': typeof CustomersIdPayRoute
   '/c/$shopId/': typeof CShopIdIndexRoute
@@ -165,7 +201,11 @@ export interface FileRouteTypes {
     | '/c/$shopId'
     | '/customers/new'
     | '/customers/'
+    | '/feedback/'
+    | '/orders/'
+    | '/c/$shopId/feedback'
     | '/c/$shopId/login'
+    | '/c/$shopId/order'
     | '/customers/$id/add'
     | '/customers/$id/pay'
     | '/c/$shopId/'
@@ -181,7 +221,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/customers/new'
     | '/customers'
+    | '/feedback'
+    | '/orders'
+    | '/c/$shopId/feedback'
     | '/c/$shopId/login'
+    | '/c/$shopId/order'
     | '/customers/$id/add'
     | '/customers/$id/pay'
     | '/c/$shopId'
@@ -198,7 +242,11 @@ export interface FileRouteTypes {
     | '/c/$shopId'
     | '/customers/new'
     | '/customers/'
+    | '/feedback/'
+    | '/orders/'
+    | '/c/$shopId/feedback'
     | '/c/$shopId/login'
+    | '/c/$shopId/order'
     | '/customers/$id/add'
     | '/customers/$id/pay'
     | '/c/$shopId/'
@@ -216,6 +264,8 @@ export interface RootRouteChildren {
   CShopIdRoute: typeof CShopIdRouteWithChildren
   CustomersNewRoute: typeof CustomersNewRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
+  FeedbackIndexRoute: typeof FeedbackIndexRoute
+  OrdersIndexRoute: typeof OrdersIndexRoute
   CustomersIdAddRoute: typeof CustomersIdAddRoute
   CustomersIdPayRoute: typeof CustomersIdPayRoute
   CustomersIdIndexRoute: typeof CustomersIdIndexRoute
@@ -272,6 +322,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orders/': {
+      id: '/orders/'
+      path: '/orders'
+      fullPath: '/orders/'
+      preLoaderRoute: typeof OrdersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feedback/': {
+      id: '/feedback/'
+      path: '/feedback'
+      fullPath: '/feedback/'
+      preLoaderRoute: typeof FeedbackIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/customers/': {
       id: '/customers/'
       path: '/customers'
@@ -321,6 +385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersIdAddRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/c/$shopId/order': {
+      id: '/c/$shopId/order'
+      path: '/order'
+      fullPath: '/c/$shopId/order'
+      preLoaderRoute: typeof CShopIdOrderRouteImport
+      parentRoute: typeof CShopIdRoute
+    }
     '/c/$shopId/login': {
       id: '/c/$shopId/login'
       path: '/login'
@@ -328,16 +399,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CShopIdLoginRouteImport
       parentRoute: typeof CShopIdRoute
     }
+    '/c/$shopId/feedback': {
+      id: '/c/$shopId/feedback'
+      path: '/feedback'
+      fullPath: '/c/$shopId/feedback'
+      preLoaderRoute: typeof CShopIdFeedbackRouteImport
+      parentRoute: typeof CShopIdRoute
+    }
   }
 }
 
 interface CShopIdRouteChildren {
+  CShopIdFeedbackRoute: typeof CShopIdFeedbackRoute
   CShopIdLoginRoute: typeof CShopIdLoginRoute
+  CShopIdOrderRoute: typeof CShopIdOrderRoute
   CShopIdIndexRoute: typeof CShopIdIndexRoute
 }
 
 const CShopIdRouteChildren: CShopIdRouteChildren = {
+  CShopIdFeedbackRoute: CShopIdFeedbackRoute,
   CShopIdLoginRoute: CShopIdLoginRoute,
+  CShopIdOrderRoute: CShopIdOrderRoute,
   CShopIdIndexRoute: CShopIdIndexRoute,
 }
 
@@ -355,6 +437,8 @@ const rootRouteChildren: RootRouteChildren = {
   CShopIdRoute: CShopIdRouteWithChildren,
   CustomersNewRoute: CustomersNewRoute,
   CustomersIndexRoute: CustomersIndexRoute,
+  FeedbackIndexRoute: FeedbackIndexRoute,
+  OrdersIndexRoute: OrdersIndexRoute,
   CustomersIdAddRoute: CustomersIdAddRoute,
   CustomersIdPayRoute: CustomersIdPayRoute,
   CustomersIdIndexRoute: CustomersIdIndexRoute,
