@@ -20,18 +20,20 @@ function AddCustomer() {
   const [notes, setNotes] = useState("");
   const [opening, setOpening] = useState("");
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     const n = Number(opening);
-    const id = addCustomer({ 
+    const id = await addCustomer({ 
       name: name.trim(), 
       phone: phone.trim() || undefined,
       address: address.trim() || undefined,
       notes: notes.trim() || undefined,
       opening: n > 0 ? n : undefined 
     });
-    navigate({ to: "/customers/$id", params: { id } });
+    if (id) {
+      navigate({ to: "/customers/$id", params: { id } });
+    }
   };
 
   return (
