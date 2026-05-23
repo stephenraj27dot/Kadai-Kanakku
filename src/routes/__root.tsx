@@ -129,12 +129,13 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
   const [phase, setPhase] = useState<"logo" | "text" | "loading" | "done">("logo");
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("text"), 400);
-    const t2 = setTimeout(() => setPhase("loading"), 900);
+    // Faster animation sequence
+    const t1 = setTimeout(() => setPhase("text"), 200);
+    const t2 = setTimeout(() => setPhase("loading"), 400);
     const t3 = setTimeout(() => {
       setPhase("done");
-      setTimeout(() => setShowSplash(false), 400); // fade out time
-    }, 2600);
+      setTimeout(() => setShowSplash(false), 300); // quick fade out
+    }, 1500); // 1.5s total splash time
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
@@ -149,7 +150,7 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
           background: "linear-gradient(160deg, oklch(0.60 0.18 148) 0%, oklch(0.52 0.19 148) 100%)",
           opacity: phase === "done" ? 0 : 1,
           pointerEvents: phase === "done" ? "none" : "auto",
-          transition: "opacity 0.4s ease"
+          transition: "opacity 0.3s ease"
         }}
       >
         <div className="absolute rounded-full" style={{ width: 320, height: 320, top: -80, right: -80, background: "oklch(1 0 0 / 0.08)" }} />
@@ -162,10 +163,12 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
               background: "oklch(1 0 0 / 0.18)", backdropFilter: "blur(8px)",
               display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 8px 32px oklch(0 0 0 / 0.2), 0 0 0 1px oklch(1 0 0 / 0.2)",
-              animation: "splashIcon 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both",
+              animation: "splashIcon 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both",
+              willChange: "transform, opacity"
             }}
           >
-            <img src="/logo.png" alt="Kadai Kanakku" style={{ width: 80, height: 80, borderRadius: 16 }} />
+            {/* Using priority loading to ensure smooth animation */}
+            <img fetchPriority="high" src="/logo.png" alt="Kadai Kanakku" style={{ width: 80, height: 80, borderRadius: 16 }} />
           </div>
 
           <div
@@ -173,7 +176,8 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
               marginTop: 28,
               opacity: phase === "logo" ? 0 : 1,
               transform: phase === "logo" ? "translateY(16px)" : "translateY(0)",
-              transition: "opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+              transition: "opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+              willChange: "transform, opacity"
             }}
           >
             <h1 style={{ fontFamily: "'Noto Sans Tamil', 'Baloo 2', sans-serif", fontSize: 40, fontWeight: 800, color: "white", textAlign: "center", lineHeight: 1.2, letterSpacing: "-0.02em", textShadow: "0 2px 8px oklch(0 0 0 / 0.15)" }}>
@@ -185,19 +189,18 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div style={{ position: "absolute", bottom: 60, display: "flex", flexDirection: "column", alignItems: "center", gap: 12, opacity: phase === "loading" ? 1 : 0, transition: "opacity 0.4s ease" }}>
+        <div style={{ position: "absolute", bottom: 60, display: "flex", flexDirection: "column", alignItems: "center", gap: 12, opacity: phase === "loading" ? 1 : 0, transition: "opacity 0.3s ease", willChange: "opacity" }}>
           <div style={{ display: "flex", gap: 8 }}>
             {[0, 1, 2].map((i) => (
-              <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "white", opacity: 0.7, animation: `loadingDot 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+              <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "white", opacity: 0.7, animation: `loadingDot 0.8s ease-in-out ${i * 0.15}s infinite`, willChange: "transform, opacity" }} />
             ))}
           </div>
-          <span style={{ fontFamily: "'Noto Sans Tamil', sans-serif", fontSize: 13, color: "oklch(1 0 0 / 0.65)", letterSpacing: "0.05em" }}>Loading...</span>
         </div>
 
         <style>{`
           @keyframes splashIcon {
-            from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
-            to   { opacity: 1; transform: scale(1) rotate(0deg); }
+            from { opacity: 0; transform: scale(0.6) translateY(20px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
           }
           @keyframes loadingDot {
             0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
