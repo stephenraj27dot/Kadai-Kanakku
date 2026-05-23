@@ -140,7 +140,7 @@ function CustomersList() {
       {/* Floating add */}
       <Link
         to="/customers/new"
-        className="fixed bottom-24 right-6 sm:right-[calc(50%-180px)] size-14 rounded-2xl bg-primary text-primary-foreground shadow-pop flex items-center justify-center press-scale z-30"
+        className="fixed bottom-24 right-6 sm:right-10 lg:right-20 size-14 rounded-2xl bg-primary text-primary-foreground shadow-pop flex items-center justify-center press-scale z-30"
       >
         <Plus className="size-6" strokeWidth={2.6} />
       </Link>
