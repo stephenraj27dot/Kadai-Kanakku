@@ -41,9 +41,11 @@ function CustomerDashboard() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return navigate({ to: `/c/${shopId}/login`, replace: true })
 
-    let { data: customer } = await supabase
+    let { data: custRows } = await supabase
       .from('customers').select('*')
-      .eq('user_id', shopId).eq('auth_user_id', user.id).single()
+      .eq('user_id', shopId).eq('auth_user_id', user.id).limit(1)
+
+    let customer = custRows && custRows.length > 0 ? custRows[0] : null
 
     if (!customer) {
       const phone = user.email?.split('@')[0]
@@ -51,8 +53,8 @@ function CustomerDashboard() {
         const { data: matched } = await supabase
           .from('customers').update({ auth_user_id: user.id })
           .eq('user_id', shopId).eq('phone', phone).is('auth_user_id', null)
-          .select().single()
-        if (matched) customer = matched
+          .select()
+        if (matched && matched.length > 0) customer = matched[0]
       }
     }
 
@@ -177,13 +179,11 @@ function CustomerDashboard() {
 
             {/* Orders */}
             {tab === 'orders' && (
-              <div className="space-y-2">
-                {orders.length === 0 ? (
-                  <div className="flex flex-col items-center py-10 opacity-40">
-                    <Droplets className="size-12 mb-3" strokeWidth={1} />
-                    <p className="font-tamil text-sm">ஆர்டர்கள் இல்லை</p>
-                  </div>
-                ) : orders.map(o => (
+              <div className="space-y-3 pb-8">
+                {orders.length === 0 && (
+                  <div className="text-center py-10 opacity-60 font-tamil text-sm">ஆர்டர்கள் ஏதுமில்லை</div>
+                )}
+                {orders.map(o => (
                   <div key={o.id} className="bg-background rounded-2xl p-4 border border-border">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
