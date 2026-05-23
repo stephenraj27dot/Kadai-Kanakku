@@ -82,23 +82,23 @@ function Dashboard() {
       <div className="px-5 mt-6 grid grid-cols-2 gap-3 animate-fade-in-up stagger-item">
         <Link
           to="/customers/new"
-          className="flex items-center gap-3 bg-card rounded-[1.25rem] border border-border px-4 py-4 shadow-card press-scale card-hover"
+          className="flex items-center gap-3 bg-card rounded-[1.25rem] border border-border px-4 py-4 shadow-card press-scale card-hover min-w-0"
         >
-          <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+          <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
             <Plus className="size-5" strokeWidth={2.4} />
           </div>
-          <div className={`font-semibold text-sm leading-tight ${ta ? "font-tamil" : ""}`}>
+          <div className={`flex-1 min-w-0 truncate font-semibold text-sm leading-tight ${ta ? "font-tamil" : ""}`}>
             {t("addCustomer")}
           </div>
         </Link>
         <Link
           to="/customers"
-          className="flex items-center gap-3 bg-card rounded-[1.25rem] border border-border px-4 py-4 shadow-card press-scale card-hover"
+          className="flex items-center gap-3 bg-card rounded-[1.25rem] border border-border px-4 py-4 shadow-card press-scale card-hover min-w-0"
         >
-          <div className="size-10 rounded-xl bg-accent text-accent-foreground flex items-center justify-center">
+          <div className="size-10 rounded-xl bg-accent text-accent-foreground flex items-center justify-center shrink-0">
             <Users className="size-5" strokeWidth={2.4} />
           </div>
-          <div className={`font-semibold text-sm leading-tight ${ta ? "font-tamil" : ""}`}>
+          <div className={`flex-1 min-w-0 truncate font-semibold text-sm leading-tight ${ta ? "font-tamil" : ""}`}>
             {t("customers")}
           </div>
         </Link>

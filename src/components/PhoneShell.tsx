@@ -38,15 +38,15 @@ function BottomNav() {
             <Link
               key={to}
               to={to}
-              className={`flex flex-col items-center gap-1 px-6 py-2 rounded-2xl transition-all ${
+              className={`flex flex-col flex-1 min-w-0 items-center gap-1 px-1 sm:px-2 py-2 rounded-2xl transition-all ${
                 active ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              <div className={`relative flex items-center justify-center ${active ? "scale-110" : ""} transition-transform`}>
+              <div className={`relative flex items-center justify-center shrink-0 ${active ? "scale-110" : ""} transition-transform`}>
                 <Icon className={`size-6 ${active ? "stroke-[2.4]" : ""}`} />
                 {active && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 size-1 rounded-full bg-primary" />}
               </div>
-              <span className={`text-[11px] ${lang === "ta" ? "font-tamil" : ""} ${active ? "font-bold" : "font-medium"}`}>
+              <span className={`text-[10px] sm:text-[11px] truncate w-full text-center ${lang === "ta" ? "font-tamil" : ""} ${active ? "font-bold" : "font-medium"}`}>
                 {label}
               </span>
             </Link>
