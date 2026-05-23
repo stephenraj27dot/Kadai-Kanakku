@@ -83,15 +83,13 @@ function AuthPage() {
             .limit(1);
 
           if (!custRows || custRows.length === 0) {
-            // Auto-link: match by phone number, claim the record
-            const { data: linked } = await supabase
-              .from('customers')
-              .update({ auth_user_id: loggedUser.id })
-              .eq('phone', cleanPhone)
-              .is('auth_user_id', null)
-              .select('user_id')
-              .limit(1);
-            custRows = linked;
+            // Auto-link using RPC (bypasses RLS securely)
+            const { data: matchedUserId } = await supabase.rpc('link_customer_account', {
+              phone_number: cleanPhone
+            });
+            if (matchedUserId) {
+              custRows = [{ user_id: matchedUserId }];
+            }
           }
 
           if (custRows && custRows.length > 0) {
@@ -106,14 +104,12 @@ function AuthPage() {
 
       } else {
         // --- SIGNUP FLOW ---
-        // First check if this phone number is registered in any shop
-        const { data: existing } = await supabase
-          .from('customers')
-          .select('user_id, phone')
-          .eq('phone', cleanPhone)
-          .limit(1);
+        // First check if this phone number is registered in any shop using RPC
+        const { data: isExists } = await supabase.rpc('check_customer_phone', {
+          phone_number: cleanPhone
+        });
 
-        if (!existing || existing.length === 0) {
+        if (!isExists) {
           setError(ta
             ? "இந்த மொபைல் எண் எந்தக் கடையிலும் பதிவு செய்யப்படவில்லை. கடைக்காரரிடம் உங்கள் எண்ணை சேர்க்கச் சொல்லுங்கள்."
             : "This phone number is not registered in any shop. Ask the shop owner to add you first.");
@@ -138,15 +134,17 @@ function AuthPage() {
           return;
         }
 
-        // Auto-link the customer record
+        // Auto-link the customer record using RPC
         if (signUpData.user) {
-          await supabase
-            .from('customers')
-            .update({ auth_user_id: signUpData.user.id })
-            .eq('phone', cleanPhone)
-            .is('auth_user_id', null);
+          const { data: matchedUserId } = await supabase.rpc('link_customer_account', {
+            phone_number: cleanPhone
+          });
 
-          navigate({ to: `/c/${existing[0].user_id}`, replace: true });
+          if (matchedUserId) {
+            navigate({ to: `/c/${matchedUserId}`, replace: true });
+          } else {
+            navigate({ to: "/dashboard", replace: true }); // Fallback
+          }
         } else {
           // Email confirmation may be required - shouldn't happen with our config
           setError(ta
