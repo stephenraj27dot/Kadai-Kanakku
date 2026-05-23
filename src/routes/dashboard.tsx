@@ -77,7 +77,7 @@ function Dashboard() {
           label={ta ? "இன்று வரவு" : "Today"}
           value={formatMoney(settledToday)}
           ta={ta}
-          to="/customers/?filter=settled"
+          to="/customers/?filter=today"
         />
       </div>
 

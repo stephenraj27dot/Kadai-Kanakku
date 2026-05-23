@@ -13,7 +13,7 @@ export const Route = createFileRoute("/customers/")({
   }),
 });
 
-type FilterTab = "all" | "pending" | "partial" | "settled" | "overdue";
+type FilterTab = "all" | "pending" | "partial" | "settled" | "overdue" | "today";
 
 function CustomersList() {
   const { t, lang } = useI18n();
@@ -38,6 +38,12 @@ function CustomersList() {
     .filter((c) => {
       if (tab === "all") return true;
       if (tab === "overdue") return isOverdue(c);
+      if (tab === "pending") return balanceOf(c) > 0; // Both pending and partial
+      if (tab === "today") {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        return c.txns.some(t => t.type === "credit" && t.at >= startOfDay.getTime());
+      }
       return statusOf(c) === tab;
     })
     .sort((a, b) => balanceOf(b) - balanceOf(a));
@@ -46,6 +52,7 @@ function CustomersList() {
     { id: "all", label: t("filterAll") },
     { id: "pending", label: t("filterPending") },
     { id: "partial", label: t("filterPartial") },
+    { id: "today", label: ta ? "இன்று" : "Today" },
     { id: "settled", label: t("filterSettled") },
     { id: "overdue", label: t("filterOverdue") },
   ];
@@ -72,6 +79,7 @@ function CustomersList() {
             let dot = "";
             if (tItem.id === "pending") dot = "bg-pending";
             else if (tItem.id === "partial") dot = "bg-partial-foreground";
+            else if (tItem.id === "today") dot = "bg-primary";
             else if (tItem.id === "settled") dot = "bg-primary";
             else if (tItem.id === "overdue") dot = "bg-destructive";
 

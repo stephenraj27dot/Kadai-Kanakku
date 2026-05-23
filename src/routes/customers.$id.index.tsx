@@ -166,17 +166,17 @@ function CustomerDetail() {
         <button 
           onClick={handleWhatsApp}
           disabled={!c.phone || bal <= 0}
-          className="h-12 rounded-2xl bg-card border border-border font-semibold flex items-center justify-center gap-2 press-scale disabled:opacity-50"
+          className="min-h-[3rem] p-2 rounded-2xl bg-card border border-border font-semibold flex items-center justify-center gap-1.5 press-scale disabled:opacity-50"
         >
-          <MessageCircle className="size-4 text-[#25D366]" />
-          <span className={`text-sm ${ta ? "font-tamil" : ""}`}>{t("remind")}</span>
+          <MessageCircle className="size-4 shrink-0 text-[#25D366]" />
+          <span className={`text-xs md:text-sm leading-tight text-center ${ta ? "font-tamil" : ""}`}>{t("remind")}</span>
         </button>
         <button 
           onClick={handlePdf}
-          className="h-12 rounded-2xl bg-card border border-border font-semibold flex items-center justify-center gap-2 press-scale"
+          className="min-h-[3rem] p-2 rounded-2xl bg-card border border-border font-semibold flex items-center justify-center gap-1.5 press-scale"
         >
-          <FileText className="size-4 text-muted-foreground" />
-          <span className={`text-sm ${ta ? "font-tamil" : ""}`}>{t("exportPdf")}</span>
+          <FileText className="size-4 shrink-0 text-muted-foreground" />
+          <span className={`text-xs md:text-sm leading-tight text-center ${ta ? "font-tamil" : ""}`}>{t("exportPdf")}</span>
         </button>
       </div>
 
