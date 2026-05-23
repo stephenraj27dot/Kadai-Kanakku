@@ -148,6 +148,7 @@ function AppGuard({ children }: { children: React.ReactNode }) {
 
 function GlobalSplash({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(() => {
+    if (typeof window === 'undefined') return true;
     return sessionStorage.getItem('splash_shown') !== 'true';
   });
   const [phase, setPhase] = useState<"logo" | "text" | "loading" | "done">("logo");
