@@ -61,6 +61,7 @@ function Dashboard() {
           label={t("pending")}
           value={pendingCount.toString()}
           ta={ta}
+          to="/customers/?filter=pending"
         />
         <StatCard
           icon={<Info className="size-4" />}
@@ -68,6 +69,7 @@ function Dashboard() {
           label={ta ? "கொஞ்சம்" : "Partial"}
           value={partialCount.toString()}
           ta={ta}
+          to="/customers/?filter=partial"
         />
         <StatCard
           icon={<TrendingUp className="size-4" />}
@@ -75,6 +77,7 @@ function Dashboard() {
           label={ta ? "இன்று வரவு" : "Today"}
           value={formatMoney(settledToday)}
           ta={ta}
+          to="/customers/?filter=settled"
         />
       </div>
 
@@ -166,19 +169,34 @@ function Dashboard() {
 }
 
 function StatCard({
-  icon, label, value, tint, ta,
-}: { icon: React.ReactNode; label: string; value: string; tint: "pending" | "primary" | "partial"; ta: boolean }) {
+  icon, label, value, tint, ta, to,
+}: { icon: React.ReactNode; label: string; value: string; tint: "pending" | "primary" | "partial"; ta: boolean; to?: string }) {
   const styles = "bg-card border-border shadow-card";
   const dot =
     tint === "pending" ? "bg-pending/10 text-pending"
       : tint === "partial" ? "bg-partial/15 text-partial-foreground"
       : "bg-primary/10 text-primary";
   
-  return (
-    <div className={`rounded-[1.25rem] border ${styles} p-3.5 flex flex-col items-center text-center`}>
+  const inner = (
+    <>
       <div className={`size-8 rounded-[0.6rem] flex items-center justify-center ${dot}`}>{icon}</div>
       <div className={`mt-2.5 text-[11px] font-semibold text-muted-foreground ${ta ? "font-tamil" : ""}`}>{label}</div>
       <div className="mt-0.5 text-base sm:text-lg font-bold font-display text-money truncate w-full">{value}</div>
+      {to && <div className="mt-1.5 text-[9px] font-semibold text-primary/60 uppercase tracking-wide">{ta ? "பார்" : "View"} →</div>}
+    </>
+  );
+
+  if (to) {
+    return (
+      <Link to={to as any} className={`rounded-[1.25rem] border ${styles} p-3.5 flex flex-col items-center text-center press-scale card-hover transition-all`}>
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={`rounded-[1.25rem] border ${styles} p-3.5 flex flex-col items-center text-center`}>
+      {inner}
     </div>
   );
 }

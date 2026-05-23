@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { PhoneShell, TopBar } from "@/components/PhoneShell";
 import { useI18n, formatMoney } from "@/lib/i18n";
@@ -8,6 +8,9 @@ import { Avatar } from "./dashboard";
 
 export const Route = createFileRoute("/customers/")({
   component: CustomersList,
+  validateSearch: (s: Record<string, unknown>) => ({
+    filter: (s.filter as string) ?? "all",
+  }),
 });
 
 type FilterTab = "all" | "pending" | "partial" | "settled" | "overdue";
@@ -17,7 +20,8 @@ function CustomersList() {
   const ta = lang === "ta";
   const { customers, balanceOf, statusOf } = useStore();
   const [q, setQ] = useState("");
-  const [tab, setTab] = useState<FilterTab>("all");
+  const search = useSearch({ from: "/customers/" });
+  const [tab, setTab] = useState<FilterTab>((search.filter as FilterTab) || "all");
 
   // Determine overdue status helper
   const isOverdue = (c: Customer) => {
