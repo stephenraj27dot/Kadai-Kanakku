@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 
 export const Route = createFileRoute('/c/$shopId')({
@@ -16,9 +16,5 @@ export const Route = createFileRoute('/c/$shopId')({
 })
 
 function CustomerLayout() {
-  return (
-    <div className="min-h-screen bg-background">
-      <p>Customer Layout</p>
-    </div>
-  )
+  return <Outlet />
 }
