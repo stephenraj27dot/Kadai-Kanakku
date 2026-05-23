@@ -41,7 +41,7 @@ function SettingsPage() {
   const handleLogout = async () => {
     if (confirm(ta ? "வெளியேற விரும்புகிறீர்களா?" : "Are you sure you want to log out?")) {
       await signOut();
-      navigate({ to: "/", replace: true });
+      window.location.href = "/";
     }
   };
 

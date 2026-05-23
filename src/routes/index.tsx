@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { useSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/")(({
+export const Route = createFileRoute("/")({
   component: Splash,
-}));
+});
 
 function Splash() {
   const { isPinSetup, isUnlocked } = useSettings();
