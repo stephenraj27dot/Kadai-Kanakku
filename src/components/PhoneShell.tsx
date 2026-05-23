@@ -21,6 +21,7 @@ export function PhoneShell({ children, hideNav = false }: { children: ReactNode;
 
 function BottomNav() {
   const { t, lang } = useI18n();
+  const ta = lang === "ta";
   const path = useRouterState({ select: (s) => s.location.pathname });
   const items = [
     { to: "/dashboard", icon: Home, label: t("dashboard") },
