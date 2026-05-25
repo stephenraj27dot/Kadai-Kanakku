@@ -5,7 +5,7 @@ import { useI18n, type Lang } from "@/lib/i18n";
 import { useSettings, type Theme } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-import { Cloud, Globe, Lock, CheckCircle2, Store, Moon, Sun, Monitor, Download, Edit2, Check, LogOut, MessageSquare, CreditCard } from "lucide-react";
+import { Cloud, Lock, CheckCircle2, Moon, Sun, Monitor, Edit2, Check, LogOut, Share2, Copy, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -14,16 +14,40 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { t, lang, setLang } = useI18n();
   const ta = lang === "ta";
-  const { theme, setTheme, shopName, setShopName, shopPhone, setShopPhone, upiId, setUpiId, canPrice, setCanPrice, isPinSetup, setPinHash } = useSettings();
+  const { theme, setTheme, shopName, shopPhone, upiId, setUpiId, canPrice, setCanPrice, isPinSetup, setPinHash, setShopName, setShopPhone } = useSettings();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const [backedUp, setBackedUp] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [tempName, setTempName] = useState(shopName);
   const [tempPhone, setTempPhone] = useState(shopPhone);
   const [tempUpi, setTempUpi] = useState(upiId);
   const [tempPrice, setTempPrice] = useState(canPrice.toString());
+
+  const shopLink = typeof window !== 'undefined' ? `${window.location.origin}/c/${user?.id}` : '';
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(shopLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shareLink = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shopName,
+          text: ta ? `எங்கள் கடையின் கணக்கை ஆன்லைனில் பார்க்கவும்:` : `View our shop account online:`,
+          url: shopLink,
+        });
+      } catch (err) {
+        console.log("Error sharing", err);
+      }
+    } else {
+      copyLink();
+    }
+  };
 
   const saveProfile = async () => {
     setShopName(tempName);
@@ -33,7 +57,6 @@ function SettingsPage() {
     setCanPrice(parsedPrice);
     setEditingProfile(false);
     
-    // Also save to Supabase shop_profiles
     if (user) {
       await supabase.rpc('upsert_shop_profile', {
         p_shop_name: tempName,
@@ -41,16 +64,6 @@ function SettingsPage() {
         p_can_price: parsedPrice,
         p_upi_id: tempUpi
       });
-    }
-  };
-
-  const togglePin = (enable: boolean) => {
-    if (enable) {
-      navigate({ to: "/pin-setup" });
-    } else {
-      if (confirm(ta ? "PIN Lock-ஐ நீக்க வேண்டுமா?" : "Remove PIN lock?")) {
-        setPinHash(null);
-      }
     }
   };
 
@@ -63,227 +76,102 @@ function SettingsPage() {
 
   return (
     <PhoneShell>
-      <TopBar title={<span className={`font-display ${ta ? "font-tamil" : ""}`}>{t("settings")}</span>} />
+      <TopBar title={<span className={`font-black font-display tracking-tight ${ta ? "font-tamil" : ""}`}>{t("settings")}</span>} />
 
-      <div className="px-4 pt-4 pb-12 space-y-5">
-        {/* Profile */}
-        <div className="rounded-[1.5rem] bg-gradient-to-br from-primary to-primary/85 text-primary-foreground p-5 shadow-card relative overflow-hidden animate-fade-in-up">
-          <div className="absolute -right-10 -top-10 size-32 rounded-full bg-white/10" />
+      <div className="px-5 pt-4 pb-12 space-y-6">
+        {/* Modern Profile Card */}
+        <div className="rounded-[2rem] bg-gradient-to-br from-primary to-primary/80 text-primary-foreground p-6 shadow-xl relative overflow-hidden">
+          <div className="absolute -right-8 -top-8 size-32 rounded-full bg-white/10 blur-xl" />
           
           {editingProfile ? (
             <div className="space-y-3 relative z-10">
-              <input 
-                value={tempName} 
-                onChange={(e) => setTempName(e.target.value)}
-                className="w-full bg-white/20 text-white placeholder-white/50 border-none rounded-xl px-3 py-2 outline-none font-bold font-display"
-                placeholder={t("shopName")}
-              />
-              <input 
-                value={tempPhone} 
-                onChange={(e) => setTempPhone(e.target.value)}
-                className="w-full bg-white/20 text-white placeholder-white/50 border-none rounded-xl px-3 py-2 outline-none font-medium text-sm"
-                placeholder={t("shopPhone")}
-              />
-              <input
-                value={tempUpi}
-                onChange={(e) => setTempUpi(e.target.value)}
-                className="w-full bg-white/20 text-white placeholder-white/50 border-none rounded-xl px-3 py-2 outline-none font-medium text-sm"
-                placeholder="UPI ID (e.g. name@upi)"
-              />
+              <input value={tempName} onChange={(e) => setTempName(e.target.value)} className="w-full bg-white/20 text-white placeholder-white/50 border-none rounded-xl px-3 py-2 outline-none font-bold" placeholder={t("shopName")} />
+              <input value={tempPhone} onChange={(e) => setTempPhone(e.target.value)} className="w-full bg-white/20 text-white placeholder-white/50 border-none rounded-xl px-3 py-2 outline-none text-sm" placeholder={t("shopPhone")} />
+              <input value={tempUpi} onChange={(e) => setTempUpi(e.target.value)} className="w-full bg-white/20 text-white placeholder-white/50 border-none rounded-xl px-3 py-2 outline-none text-sm" placeholder="UPI ID" />
               <div className="flex items-center gap-2">
-                <span className={`text-sm font-bold ${ta ? "font-tamil" : ""}`}>
-                  {ta ? "ஒரு கேன் விலை:" : "Can Price: ₹"}
-                </span>
-                <input 
-                  type="number"
-                  value={tempPrice} 
-                  onChange={(e) => setTempPrice(e.target.value)}
-                  className="w-24 bg-white/20 text-white placeholder-white/50 border-none rounded-xl px-3 py-2 outline-none font-bold text-sm"
-                  placeholder="30"
-                />
+                <span className="text-xs font-bold uppercase opacity-70">Can Price: ₹</span>
+                <input type="number" value={tempPrice} onChange={(e) => setTempPrice(e.target.value)} className="w-20 bg-white/20 text-white rounded-xl px-3 py-1 outline-none font-bold" />
               </div>
-              <button 
-                onClick={saveProfile}
-                className="w-full bg-white text-primary font-bold py-2 rounded-xl mt-2 flex items-center justify-center gap-2 press-scale"
-              >
-                <Check className="size-4" /> Save
+              <button onClick={saveProfile} className="w-full bg-white text-primary font-black py-3 rounded-2xl mt-2 flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform">
+                <Check className="size-5" /> {ta ? "சேமி" : "Save"}
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3 relative z-10">
-              <div className="size-14 rounded-full bg-white/15 ring-1 ring-white/20 flex items-center justify-center text-2xl font-bold font-display shadow-sm">
-                {shopName ? shopName.charAt(0).toUpperCase() : "S"}
-              </div>
-              <div className="flex-1">
-                <div className={`font-bold text-lg font-display ${ta ? "font-tamil" : ""}`}>
-                  {shopName || (ta ? "உங்கள் கடை" : "Your Shop")}
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="size-16 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl font-black shadow-inner border border-white/20">
+                  {shopName ? shopName.charAt(0).toUpperCase() : "S"}
                 </div>
-                <div className="text-sm text-white/90 font-medium mt-0.5">{shopPhone || "Add phone number"}</div>
-                <div className="text-xs text-white/80 mt-1 font-display opacity-75">{upiId || "No UPI ID set"}</div>
-                <div className={`text-xs text-white/80 mt-1 font-bold ${ta ? "font-tamil" : ""}`}>
-                  {ta ? `1 கேன் விலை: ₹${canPrice}` : `Can Price: ₹${canPrice}`}
+                <div>
+                  <h3 className="font-black text-xl font-display">{shopName || "Your Shop"}</h3>
+                  <p className="text-xs font-bold opacity-70 mt-0.5 tracking-wider">{shopPhone || "No Phone"}</p>
                 </div>
               </div>
-              <button 
-                onClick={() => { setTempName(shopName); setTempPhone(shopPhone); setTempUpi(upiId); setTempPrice(canPrice.toString()); setEditingProfile(true); }}
-                className="size-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0"
-              >
-                <Edit2 className="size-4" />
+              <button onClick={() => { setTempName(shopName); setTempPhone(shopPhone); setTempUpi(upiId); setTempPrice(canPrice.toString()); setEditingProfile(true); }} className="size-11 rounded-2xl bg-white/15 flex items-center justify-center hover:bg-white/25 transition-colors border border-white/10">
+                <Edit2 className="size-5" />
               </button>
             </div>
           )}
         </div>
 
-        {/* Theme */}
-        <Section title={t("theme")} ta={ta} delay="60ms">
-          <div className="p-1 grid grid-cols-3 gap-1 bg-muted rounded-[1.25rem]">
-            <button
-              onClick={() => setTheme("light")}
-              className={`flex flex-col items-center justify-center gap-1.5 h-16 rounded-[1rem] text-xs font-semibold transition-all ${
-                theme === "light" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-              } ${ta ? "font-tamil" : ""}`}
-            >
-              <Sun className="size-5" />
-              {t("lightMode")}
-            </button>
-            <button
-              onClick={() => setTheme("dark")}
-              className={`flex flex-col items-center justify-center gap-1.5 h-16 rounded-[1rem] text-xs font-semibold transition-all ${
-                theme === "dark" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-              } ${ta ? "font-tamil" : ""}`}
-            >
-              <Moon className="size-5" />
-              {t("darkMode")}
-            </button>
-            <button
-              onClick={() => setTheme("system")}
-              className={`flex flex-col items-center justify-center gap-1.5 h-16 rounded-[1rem] text-xs font-semibold transition-all ${
-                theme === "system" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-              } ${ta ? "font-tamil" : ""}`}
-            >
-              <Monitor className="size-5" />
-              {t("systemTheme")}
-            </button>
-          </div>
-        </Section>
-
-        {/* Language */}
-        <Section title={t("language")} ta={ta} delay="120ms">
-          <div className="p-1 grid grid-cols-2 gap-1 bg-muted rounded-[1.25rem]">
-            {(["ta", "en"] as Lang[]).map((l) => (
-              <button
-                key={l}
-                onClick={() => setLang(l)}
-                className={`h-12 rounded-[1rem] font-bold transition-all text-sm ${
-                  lang === l ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                } ${l === "ta" ? "font-tamil" : ""}`}
-              >
-                {l === "ta" ? "தமிழ்" : "English"}
-              </button>
-            ))}
-          </div>
-        </Section>
-
-        {/* Security */}
-        <Section title={ta ? "பாதுகாப்பு" : "Security"} ta={ta} delay="180ms">
-          <Row
-            icon={<Lock className="size-5" />}
-            tint="partial"
-            title={t("appLock")}
-            subtitle={t("appLockDesc")}
-            ta={ta}
-            right={<Toggle on={isPinSetup} onChange={togglePin} />}
-          />
-        </Section>
-
-        {/* Data & Backup */}
-        <Section title={ta ? "தரவுகள்" : "Data"} ta={ta} delay="240ms">
-          <Row
-            icon={<Cloud className="size-5" />}
-            tint="primary"
-            title={t("backup")}
-            subtitle={user?.email ? `Synced to ${user.email}` : "Not logged in"}
-            ta={ta}
-            right={
-              <button
-                onClick={() => setBackedUp(true)}
-                className={`px-4 h-9 rounded-full text-xs font-bold flex items-center gap-1.5 press-scale ${
-                  backedUp ? "bg-primary/10 text-primary" : "bg-primary text-primary-foreground shadow-soft"
-                }`}
-              >
-                {backedUp && <CheckCircle2 className="size-4" />}
-                <span className={ta ? "font-tamil" : ""}>
-                  {backedUp ? (ta ? "முடிந்தது" : "Done") : t("backupNow")}
-                </span>
-              </button>
-            }
-          />
-        </Section>
-        
-        {/* Account Actions */}
-        <Section title={ta ? "கணக்கு" : "Account"} ta={ta} delay="300ms">
-          <div className="flex items-center justify-between px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-full bg-destructive/10 text-destructive flex items-center justify-center shrink-0">
-                <LogOut className="size-5" />
-              </div>
-              <div className="font-bold text-sm text-destructive">{ta ? "வெளியேறு" : "Logout"}</div>
+        {/* Customer Access - Moved from Dashboard */}
+        <div className="bg-card border border-border rounded-[2rem] p-5 shadow-sm space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-2xl bg-accent/10 text-accent-foreground flex items-center justify-center">
+              <Share2 className="size-5" />
             </div>
-            <button 
-              onClick={handleLogout}
-              className="px-4 h-9 rounded-full bg-destructive text-destructive-foreground text-xs font-bold shadow-soft press-scale"
-            >
-              {ta ? "வெளியேறு" : "Logout"}
+            <div>
+              <h4 className="font-bold text-sm">{ta ? "வாடிக்கையாளர் லிங்க்" : "Customer Link"}</h4>
+              <p className="text-[10px] text-muted-foreground font-medium">{ta ? "வாடிக்கையாளர்கள் ஆர்டர் செய்ய இதை அனுப்பவும்" : "Customers can use this link to order"}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={shareLink} className="flex-1 h-12 bg-primary text-primary-foreground rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-soft active:scale-95 transition-all">
+              <Share2 className="size-4" /> {ta ? "பகிர்க (Share)" : "Share Link"}
+            </button>
+            <button onClick={copyLink} className={`px-4 rounded-2xl font-bold transition-all border ${copied ? 'bg-green-50 text-green-600 border-green-200' : 'bg-background border-border'}`}>
+              {copied ? <CheckCircle2 className="size-5" /> : <Copy className="size-5" />}
             </button>
           </div>
-        </Section>
+        </div>
 
-        <p className="text-center text-xs font-medium text-muted-foreground pt-4 pb-8">
-          Kadai Kanakku v1 · Made with ♥ in Tamil Nadu
-        </p>
+        {/* Sections */}
+        <div className="space-y-4">
+          <h5 className="px-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">{ta ? "அமைப்புகள்" : "Preferences"}</h5>
+
+          {/* Language Toggle */}
+          <div className="bg-card border border-border rounded-[2rem] p-2 flex gap-2">
+            <button onClick={() => setLang('ta')} className={`flex-1 h-12 rounded-3xl font-black text-sm transition-all ${lang === 'ta' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground'}`}>தமிழ்</button>
+            <button onClick={() => setLang('en')} className={`flex-1 h-12 rounded-3xl font-black text-sm transition-all ${lang === 'en' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground'}`}>English</button>
+          </div>
+
+          {/* Security & Data */}
+          <div className="bg-card border border-border rounded-[2rem] overflow-hidden divide-y divide-border shadow-sm">
+            <div className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="size-10 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center"><Lock className="size-5" /></div>
+                <div>
+                  <p className="font-bold text-sm">{ta ? "ஆப் லாக்" : "App Lock"}</p>
+                  <p className="text-[10px] text-muted-foreground">{ta ? "PIN மூலம் பாதுகாப்பு" : "Secure with PIN"}</p>
+                </div>
+              </div>
+              <button onClick={() => navigate({ to: "/pin-setup" })} className={`w-11 h-6 rounded-full p-0.5 transition-colors ${isPinSetup ? 'bg-primary' : 'bg-muted'}`}>
+                <div className={`size-5 rounded-full bg-white shadow-sm transition-transform ${isPinSetup ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+
+            <button onClick={handleLogout} className="w-full p-4 flex items-center gap-4 hover:bg-destructive/5 transition-colors text-destructive">
+               <div className="size-10 rounded-2xl bg-destructive/10 flex items-center justify-center"><LogOut className="size-5" /></div>
+               <div className="text-left">
+                  <p className="font-bold text-sm">{ta ? "வெளியேறு" : "Logout"}</p>
+                  <p className="text-[10px] opacity-60">Sign out from your account</p>
+               </div>
+            </button>
+          </div>
+        </div>
+
+        <p className="text-center text-[10px] font-bold text-muted-foreground uppercase tracking-widest pt-4">Kadai Kanakku v1.2</p>
       </div>
     </PhoneShell>
-  );
-}
-
-function Section({ title, ta, children, delay }: { title: string; ta: boolean; children: React.ReactNode; delay: string }) {
-  return (
-    <div className="animate-fade-in-up" style={{ animationDelay: delay }}>
-      <h2 className={`px-2 mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground ${ta ? "font-tamil" : ""}`}>
-        {title}
-      </h2>
-      <div className="bg-card rounded-[1.25rem] border border-border shadow-card overflow-hidden">{children}</div>
-    </div>
-  );
-}
-
-function Row({ icon, tint, title, subtitle, right, ta }: {
-  icon: React.ReactNode; tint: "primary" | "partial" | "pending";
-  title: string; subtitle?: string; right?: React.ReactNode; ta: boolean;
-}) {
-  const tintCls =
-    tint === "primary" ? "bg-primary/10 text-primary"
-      : tint === "partial" ? "bg-partial/15 text-partial-foreground"
-      : "bg-pending/10 text-pending";
-  return (
-    <div className="flex items-center gap-4 px-4 py-4">
-      <div className={`size-11 rounded-[0.8rem] flex items-center justify-center shrink-0 ${tintCls}`}>{icon}</div>
-      <div className="flex-1 min-w-0">
-        <div className={`font-bold text-sm ${ta ? "font-tamil" : ""}`}>{title}</div>
-        {subtitle && <div className={`text-xs text-muted-foreground mt-0.5 font-medium truncate pr-2 ${ta ? "font-tamil" : ""}`}>{subtitle}</div>}
-      </div>
-      {right}
-    </div>
-  );
-}
-
-function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      onClick={() => onChange(!on)}
-      className={`w-12 h-7 rounded-full p-0.5 transition-colors press-scale ${on ? "bg-primary" : "bg-muted border border-border"}`}
-    >
-      <div className={`size-5 rounded-full bg-white shadow-sm transition-transform ${on ? "translate-x-5" : "translate-x-0 border border-black/5"}`} />
-    </button>
   );
 }

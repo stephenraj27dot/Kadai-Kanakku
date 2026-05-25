@@ -6,7 +6,7 @@ import { useSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Plus, Users, ShoppingBag, Copy, CheckCircle2 } from "lucide-react";
+import { ArrowUpRight, Plus, Users, ShoppingBag, Settings as SettingsIcon } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 
 export const Route = createFileRoute("/dashboard")({
@@ -21,36 +21,26 @@ function Dashboard() {
   const { shopName } = useSettings();
   const { pending, pendingCount } = totals();
   const [pendingOrders, setPendingOrders] = useState(0);
-  const [copied, setCopied] = useState(false);
-
-  const shopLink = typeof window !== 'undefined' ? `${window.location.origin}/c/${user?.id}` : '';
 
   const fetchOrderCount = async () => {
     if (!user) return;
-    const { count, error } = await supabase
+    const { count } = await supabase
       .from('orders')
       .select('*', { count: 'exact', head: true })
       .eq('shop_owner_id', user.id)
       .eq('status', 'pending');
-
-    if (!error) setPendingOrders(count || 0);
+    setPendingOrders(count || 0);
   };
 
   useEffect(() => {
     fetchOrderCount();
-    const channel = supabase.channel('dashboard_sync')
+    const channel = supabase.channel('order_sync')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
         fetchOrderCount();
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user]);
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(shopLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const recent = [...customers]
     .filter((c) => c.txns.length)
@@ -59,76 +49,90 @@ function Dashboard() {
 
   return (
     <PhoneShell>
-      <div className="bg-gradient-to-br from-primary to-primary/85 text-primary-foreground px-5 pt-12 pb-20 rounded-b-[2.5rem] relative shadow-soft">
-        <div className="flex items-center justify-between relative">
+      {/* Premium Header */}
+      <div className="bg-gradient-to-br from-primary to-primary/90 text-primary-foreground px-6 pt-12 pb-16 rounded-b-[3rem] relative shadow-soft overflow-hidden">
+        <div className="absolute -right-12 -top-12 size-48 rounded-full bg-white/10 blur-2xl" />
+        <div className="flex items-center justify-between relative z-10">
           <div>
-            <p className="text-sm text-white/80">{ta ? "வணக்கம் 👋" : "Vanakkam 👋"}</p>
-            <p className="text-xl font-bold font-display">{shopName || (ta ? "உங்கள் கடை" : "Your Shop")}</p>
+            <p className="text-sm font-medium text-white/70">{ta ? "வணக்கம் 👋" : "Welcome back 👋"}</p>
+            <p className="text-2xl font-black font-display tracking-tight">{shopName || (ta ? "உங்கள் கடை" : "Your Shop")}</p>
           </div>
-          <Link to="/settings" className="size-11 rounded-full bg-white/15 backdrop-blur flex items-center justify-center font-bold text-lg border border-white/20">
-            {shopName ? shopName.charAt(0).toUpperCase() : "S"}
+          <Link to="/settings" className="size-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-lg press-scale">
+            <SettingsIcon className="size-6 text-white" />
           </Link>
         </div>
-        <div className="mt-6">
-          <p className="text-sm font-medium text-white/80">{t("totalPending")}</p>
-          <p className="text-4xl font-bold mt-1 text-white">{formatMoney(pending)}</p>
-        </div>
-      </div>
 
-      <div className="px-5 -mt-6 mb-4 relative z-20">
-        <div className="bg-card border border-border p-4 rounded-2xl shadow-lg flex flex-col gap-2">
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{ta ? 'வாடிக்கையாளர் லிங்க்' : 'Share Link to Customers'}</p>
-          <div className="flex gap-2">
-            <div className="flex-1 bg-muted rounded-xl px-3 py-2 text-[10px] font-mono truncate border border-border flex items-center">{shopLink}</div>
-            <button onClick={copyLink} className={`p-2 rounded-xl transition-all ${copied ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground shadow-soft'}`}>
-              {copied ? <CheckCircle2 className="size-5" /> : <Copy className="size-5" />}
-            </button>
+        <div className="mt-8 relative z-10">
+          <p className="text-xs font-bold text-white/60 uppercase tracking-widest">{t("totalPending")}</p>
+          <div className="flex items-baseline gap-1 mt-1">
+            <span className="text-4xl font-black text-white">{formatMoney(pending)}</span>
+          </div>
+          <div className="mt-4 flex items-center gap-2 text-xs font-bold text-white/80 bg-black/10 self-start px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
+            <Users className="size-3.5" />
+            {pendingCount} {t("pendingCustomers")}
           </div>
         </div>
       </div>
 
+      {/* New Orders Banner - Cleaned up */}
       {pendingOrders > 0 && (
-        <div className="px-5 mb-6 relative z-10 animate-bounce">
-          <Link to="/orders" className="flex items-center justify-between bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl shadow-md">
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-lg">
+        <div className="px-5 -mt-6 mb-6 relative z-20">
+          <Link to="/orders" className="flex items-center justify-between bg-amber-500 text-white p-4 rounded-[1.5rem] shadow-xl ring-4 ring-background animate-in slide-in-from-top-4">
+            <div className="flex items-center gap-4">
+              <div className="size-10 rounded-xl bg-white/20 flex items-center justify-center">
                 <ShoppingBag className="size-5" />
               </div>
               <div>
-                <p className="text-[10px] font-black text-amber-600 uppercase tracking-tighter">{ta ? 'புதிய ஆர்டர்' : 'NEW ORDER'}</p>
-                <p className="font-bold text-amber-900 leading-tight">{pendingOrders} {ta ? 'கேன்கள் காத்திருக்கிறது' : 'Orders Waiting'}</p>
+                <p className="text-[10px] font-black text-white/80 uppercase tracking-tighter">{ta ? 'புதிய ஆர்டர்' : 'NEW ORDER'}</p>
+                <p className="font-bold leading-tight">{pendingOrders} {ta ? 'டெலிவரிக்கு காத்திருக்கிறது' : 'Orders Pending'}</p>
               </div>
             </div>
-            <ArrowUpRight className="size-5 text-amber-500" />
+            <div className="size-8 rounded-full bg-white/20 flex items-center justify-center">
+              <ArrowUpRight className="size-5" />
+            </div>
           </Link>
         </div>
       )}
 
-      <div className="px-5 grid grid-cols-2 gap-3">
-        <Link to="/customers/new" className="bg-card border border-border rounded-2xl p-4 flex flex-col items-center shadow-sm active:scale-95 transition-all">
-          <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-2"><Plus className="size-5" /></div>
+      {/* Main Actions */}
+      <div className={`px-5 grid grid-cols-2 gap-4 ${pendingOrders > 0 ? "" : "-mt-8"}`}>
+        <Link to="/customers/new" className="bg-card border border-border rounded-[1.5rem] p-5 flex flex-col items-center shadow-card press-scale transition-all">
+          <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3"><Plus className="size-6" strokeWidth={2.5} /></div>
           <span className="font-bold text-sm">{t("addCustomer")}</span>
         </Link>
-        <Link to="/orders" className="bg-card border border-border rounded-2xl p-4 flex flex-col items-center shadow-sm active:scale-95 transition-all relative">
-          <div className="size-10 rounded-xl bg-accent text-accent-foreground flex items-center justify-center mb-2"><ShoppingBag className="size-5" /></div>
+        <Link to="/orders" className="bg-card border border-border rounded-[1.5rem] p-5 flex flex-col items-center shadow-card press-scale transition-all relative">
+          <div className="size-12 rounded-2xl bg-accent text-accent-foreground flex items-center justify-center mb-3"><ShoppingBag className="size-6" strokeWidth={2.5} /></div>
           <span className="font-bold text-sm">{ta ? 'ஆர்டர்கள்' : 'Orders'}</span>
-          {pendingOrders > 0 && <span className="absolute top-3 right-3 size-5 bg-amber-500 text-white text-[10px] font-black rounded-full flex items-center justify-center ring-2 ring-card">{pendingOrders}</span>}
+          {pendingOrders > 0 && (
+            <span className="absolute top-4 right-4 size-6 bg-amber-500 text-white text-[11px] font-black rounded-full flex items-center justify-center ring-4 ring-card">
+              {pendingOrders}
+            </span>
+          )}
         </Link>
       </div>
 
-      <div className="px-5 mt-8 pb-10">
-        <h2 className="text-base font-bold mb-4">{t("recent")}</h2>
+      {/* Recent Customers Section */}
+      <div className="px-5 mt-10 pb-12">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg font-black font-display tracking-tight text-foreground">{t("recent")}</h2>
+          <Link to="/customers" className="text-xs font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-full press-scale">{t("seeAll")}</Link>
+        </div>
+
         <div className="space-y-3">
-          {recent.map((c) => (
-            <Link key={c.id} to="/customers/$id" params={{ id: c.id }} className="flex items-center gap-3 bg-card rounded-2xl border border-border p-3 shadow-card active:scale-[0.98] transition-all">
-              <Avatar name={c.name} />
+          {recent.length === 0 ? (
+            <div className="text-center py-10 opacity-30 border-2 border-dashed border-border rounded-3xl">
+              <p className="text-sm font-bold">{ta ? "வாடிக்கையாளர்கள் இல்லை" : "No recent customers"}</p>
+            </div>
+          ) : recent.map((c) => (
+            <Link key={c.id} to="/customers/$id" params={{ id: c.id }} className="flex items-center gap-4 bg-card border border-border p-4 rounded-[1.5rem] shadow-sm active:scale-[0.98] transition-all">
+              <Avatar name={c.name} size={50} />
               <div className="flex-1 min-w-0">
-                <div className="font-bold truncate text-sm">{c.name}</div>
-                <div className="text-[10px] text-muted-foreground font-bold tracking-wider">{c.phone || "SAVED"}</div>
+                <div className="font-bold truncate text-base">{c.name}</div>
+                <div className="text-[10px] text-muted-foreground font-black tracking-widest uppercase mt-0.5">{c.phone || "SAVED"}</div>
               </div>
               <div className="text-right">
-                <div className="font-black text-money text-sm">{formatMoney(Math.abs(balanceOf(c)))}</div>
-                <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full badge-${statusOf(c)}`}>
+                <div className="font-black text-money text-base">{formatMoney(Math.abs(balanceOf(c)))}</div>
+                <div className={`text-[10px] font-bold px-2.5 py-1 rounded-full mt-1 inline-block badge-${statusOf(c)}`}>
                   {statusOf(c) === "settled" ? "✓" : (ta ? "பாக்கி" : "Baki")}
                 </div>
               </div>
