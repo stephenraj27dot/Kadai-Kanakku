@@ -119,18 +119,19 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
   const [phase, setPhase] = useState<"logo" | "text" | "loading" | "done">("logo");
 
   useEffect(() => {
+    // We check if it's the first time in this session
     if (sessionStorage.getItem('splash_shown') === 'true') {
       setShowSplash(false);
       return;
     }
     
     sessionStorage.setItem('splash_shown', 'true');
-    const t1 = setTimeout(() => setPhase("text"), 300);
-    const t2 = setTimeout(() => setPhase("loading"), 600);
+    const t1 = setTimeout(() => setPhase("text"), 100);
+    const t2 = setTimeout(() => setPhase("loading"), 400);
     const t3 = setTimeout(() => {
       setPhase("done");
       setTimeout(() => setShowSplash(false), 500);
-    }, 2000);
+    }, 1800);
 
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
@@ -141,19 +142,30 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
       {showSplash && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-primary text-white transition-opacity duration-500"
              style={{ opacity: phase === 'done' ? 0 : 1, pointerEvents: phase === 'done' ? 'none' : 'auto' }}>
-          <div className="flex flex-col items-center animate-in zoom-in duration-500 text-center px-6">
-            <div className="size-24 bg-white/20 backdrop-blur-md rounded-[2.5rem] flex items-center justify-center shadow-2xl mb-6 border border-white/30">
-               <img src="/logo.png" alt="Logo" className="size-16 rounded-2xl" />
+
+          {/* Main Content Area - No initial logo, direct animation */}
+          <div className="flex flex-col items-center text-center px-6">
+            <div className={`transition-all duration-700 transform ${phase === 'logo' ? 'scale-90 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}`}>
+              <h1 className="text-5xl font-black font-display text-white tracking-tighter shadow-sm">
+                கடை கணக்கு
+              </h1>
+              <p className="mt-4 text-white/90 font-bold text-lg font-tamil animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-300">
+                உங்கள் கடையின் நம்பிக்கையான கணக்குத் தோழன்
+              </p>
             </div>
-            <h1 className="text-4xl font-black font-display text-white tracking-tight">கடை கணக்கு</h1>
-            <p className="mt-3 text-white/90 font-bold text-base font-tamil">
-              உங்கள் கடையின் நம்பிக்கையான கணக்குத் தோழன்
-            </p>
           </div>
-          <div className="absolute bottom-12 flex gap-2">
+
+          {/* Loading Indicator */}
+          <div className={`absolute bottom-16 flex gap-2 transition-opacity duration-300 ${phase === 'loading' ? 'opacity-100' : 'opacity-0'}`}>
             {[0, 1, 2].map(i => (
-              <div key={i} className="size-2 bg-white rounded-full animate-bounce" style={{ animationDelay: `${i * 0.1}s` }} />
+              <div key={i} className="size-2 bg-white rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
             ))}
+          </div>
+
+          {/* Decorative background pulses */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] bg-white/5 rounded-full animate-pulse" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[300px] bg-white/5 rounded-full animate-pulse delay-700" />
           </div>
         </div>
       )}
