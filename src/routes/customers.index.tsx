@@ -4,7 +4,7 @@ import { PhoneShell, TopBar } from "@/components/PhoneShell";
 import { useI18n, formatMoney } from "@/lib/i18n";
 import { useStore, type Customer } from "@/lib/store";
 import { Plus, Search, Flame } from "lucide-react";
-import { Avatar } from "./dashboard";
+import { Avatar } from "@/components/Avatar";
 
 export const Route = createFileRoute("/customers/")({
   component: CustomersList,

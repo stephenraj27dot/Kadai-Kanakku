@@ -5,7 +5,7 @@ import { useStore } from "@/lib/store";
 import { useSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { Phone, ArrowDownLeft, ArrowUpRight, Minus, Plus, MessageCircle, FileText, Trash2, MapPin, AlignLeft, Flame, Share2 } from "lucide-react";
-import { Avatar } from "./dashboard";
+import { Avatar } from "@/components/Avatar";
 import { openWhatsAppReminder } from "@/lib/whatsapp";
 import { generateCustomerStatementPdf } from "@/lib/pdf";
 
