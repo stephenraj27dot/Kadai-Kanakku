@@ -5,7 +5,7 @@ import { useI18n, type Lang } from "@/lib/i18n";
 import { useSettings, type Theme } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-import { Cloud, Globe, Lock, CheckCircle2, Store, Moon, Sun, Monitor, Download, Edit2, Check, LogOut, MessageSquare } from "lucide-react";
+import { Cloud, Globe, Lock, CheckCircle2, Store, Moon, Sun, Monitor, Download, Edit2, Check, LogOut, MessageSquare, CreditCard } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/settings")({
 function SettingsPage() {
   const { t, lang, setLang } = useI18n();
   const ta = lang === "ta";
-  const { theme, setTheme, shopName, setShopName, shopPhone, setShopPhone, canPrice, setCanPrice, isPinSetup, setPinHash } = useSettings();
+  const { theme, setTheme, shopName, setShopName, shopPhone, setShopPhone, upiId, setUpiId, canPrice, setCanPrice, isPinSetup, setPinHash } = useSettings();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -22,11 +22,13 @@ function SettingsPage() {
   const [editingProfile, setEditingProfile] = useState(false);
   const [tempName, setTempName] = useState(shopName);
   const [tempPhone, setTempPhone] = useState(shopPhone);
+  const [tempUpi, setTempUpi] = useState(upiId);
   const [tempPrice, setTempPrice] = useState(canPrice.toString());
 
   const saveProfile = async () => {
     setShopName(tempName);
     setShopPhone(tempPhone);
+    setUpiId(tempUpi);
     const parsedPrice = parseInt(tempPrice, 10) || 30;
     setCanPrice(parsedPrice);
     setEditingProfile(false);
@@ -36,7 +38,8 @@ function SettingsPage() {
       await supabase.rpc('upsert_shop_profile', {
         p_shop_name: tempName,
         p_phone: tempPhone,
-        p_can_price: parsedPrice
+        p_can_price: parsedPrice,
+        p_upi_id: tempUpi
       });
     }
   };
@@ -81,6 +84,12 @@ function SettingsPage() {
                 className="w-full bg-white/20 text-white placeholder-white/50 border-none rounded-xl px-3 py-2 outline-none font-medium text-sm"
                 placeholder={t("shopPhone")}
               />
+              <input
+                value={tempUpi}
+                onChange={(e) => setTempUpi(e.target.value)}
+                className="w-full bg-white/20 text-white placeholder-white/50 border-none rounded-xl px-3 py-2 outline-none font-medium text-sm"
+                placeholder="UPI ID (e.g. name@upi)"
+              />
               <div className="flex items-center gap-2">
                 <span className={`text-sm font-bold ${ta ? "font-tamil" : ""}`}>
                   {ta ? "ஒரு கேன் விலை:" : "Can Price: ₹"}
@@ -110,12 +119,13 @@ function SettingsPage() {
                   {shopName || (ta ? "உங்கள் கடை" : "Your Shop")}
                 </div>
                 <div className="text-sm text-white/90 font-medium mt-0.5">{shopPhone || "Add phone number"}</div>
+                <div className="text-xs text-white/80 mt-1 font-display opacity-75">{upiId || "No UPI ID set"}</div>
                 <div className={`text-xs text-white/80 mt-1 font-bold ${ta ? "font-tamil" : ""}`}>
                   {ta ? `1 கேன் விலை: ₹${canPrice}` : `Can Price: ₹${canPrice}`}
                 </div>
               </div>
               <button 
-                onClick={() => { setTempName(shopName); setTempPhone(shopPhone); setTempPrice(canPrice.toString()); setEditingProfile(true); }}
+                onClick={() => { setTempName(shopName); setTempPhone(shopPhone); setTempUpi(upiId); setTempPrice(canPrice.toString()); setEditingProfile(true); }}
                 className="size-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0"
               >
                 <Edit2 className="size-4" />

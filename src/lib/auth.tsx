@@ -22,11 +22,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Safety timeout to prevent infinite loading
+    const timer = setTimeout(() => {
+      if (loading) {
+        console.warn("Auth check timed out. Please check your Supabase keys.");
+        setLoading(false);
+      }
+    }, 5000);
+
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      })
+      .catch(err => {
+        console.error("Supabase session error:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+        clearTimeout(timer);
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
@@ -34,7 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
   }, []);
 
   const signOut = async () => {

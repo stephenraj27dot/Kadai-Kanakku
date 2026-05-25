@@ -9,6 +9,8 @@ type SettingsCtx = {
   setShopName: (n: string) => void;
   shopPhone: string;
   setShopPhone: (p: string) => void;
+  upiId: string;
+  setUpiId: (id: string) => void;
   canPrice: number;
   setCanPrice: (p: number) => void;
   pinHash: string | null;
@@ -24,6 +26,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("system");
   const [shopName, setShopNameState] = useState("Subramaniyan Stores");
   const [shopPhone, setShopPhoneState] = useState("+91 98765 43210");
+  const [upiId, setUpiIdState] = useState("");
   const [canPrice, setCanPriceState] = useState(30);
   const [pinHash, setPinHashState] = useState<string | null>(null);
   const [isUnlocked, setUnlocked] = useState(false);
@@ -39,6 +42,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
     const savedShopPhone = localStorage.getItem("bb_shopPhone");
     if (savedShopPhone) setShopPhoneState(savedShopPhone);
+
+    const savedUpiId = localStorage.getItem("bb_upiId");
+    if (savedUpiId) setUpiIdState(savedUpiId);
 
     const savedCanPrice = localStorage.getItem("bb_canPrice");
     if (savedCanPrice) setCanPriceState(parseInt(savedCanPrice, 10));
@@ -86,6 +92,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("bb_shopPhone", p);
   };
 
+  const setUpiId = (id: string) => {
+    setUpiIdState(id);
+    localStorage.setItem("bb_upiId", id);
+  };
+
   const setCanPrice = (p: number) => {
     setCanPriceState(p);
     localStorage.setItem("bb_canPrice", p.toString());
@@ -122,6 +133,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setShopName,
         shopPhone,
         setShopPhone,
+        upiId,
+        setUpiId,
         canPrice,
         setCanPrice,
         pinHash,

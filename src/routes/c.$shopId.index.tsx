@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { PhoneShell } from '@/components/PhoneShell'
 import { supabase } from '@/lib/supabase'
 import { useEffect, useState } from 'react'
-import { LogOut, User, Droplets, ReceiptText, MessageSquare, Phone, ChevronRight, Clock, CheckCircle, XCircle, Settings } from 'lucide-react'
+import { LogOut, User, Droplets, ReceiptText, MessageSquare, Phone, ChevronRight, Clock, CheckCircle, XCircle, Settings, CreditCard } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 
 export const Route = createFileRoute('/c/$shopId/')({
@@ -32,10 +32,12 @@ function CustomerDashboard() {
   const ta = lang === 'ta'
 
   const [profile, setProfile] = useState<any>(null)
+  const [shopProfile, setShopProfile] = useState<any>(null)
   const [orders, setOrders] = useState<OrderItem[]>([])
   const [txns, setTxns] = useState<TxnItem[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'balance' | 'orders'>('balance')
+  const [paying, setPaying] = useState(false)
 
   useEffect(() => { 
     let cleanupFunc: (() => void) | void;
@@ -47,6 +49,14 @@ function CustomerDashboard() {
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return navigate({ to: `/c/${shopId}/login`, replace: true })
+
+    // Fetch shop info (UPI ID, etc)
+    const { data: sProfile } = await supabase
+      .from('shop_profiles')
+      .select('*')
+      .eq('owner_id', shopId)
+      .single()
+    setShopProfile(sProfile)
 
     let { data: custRows } = await supabase
       .from('customers').select('*')
@@ -72,7 +82,7 @@ function CustomerDashboard() {
       const { data: txnData } = await supabase
         .from('txns').select('*')
         .eq('customer_id', customer.id)
-        .order('at', { ascending: false }).limit(10)
+        .order('at', { ascending: false }).limit(20)
       setTxns(txnData || [])
 
       // Fetch orders
@@ -85,16 +95,13 @@ function CustomerDashboard() {
       // Realtime subscription
       const channel = supabase.channel(`customer_data_${customer.id}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `customer_id=eq.${customer.id}` }, () => {
-          // Re-fetch on any change
           supabase.from('orders').select('*').eq('customer_id', customer.id).order('delivery_date', { ascending: false }).limit(10).then(({ data }) => setOrders(data || []))
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'txns', filter: `customer_id=eq.${customer.id}` }, () => {
-          // Re-fetch txns
-          supabase.from('txns').select('*').eq('customer_id', customer.id).order('at', { ascending: false }).limit(10).then(({ data }) => setTxns(data || []))
+          supabase.from('txns').select('*').eq('customer_id', customer.id).order('at', { ascending: false }).limit(20).then(({ data }) => setTxns(data || []))
         })
         .subscribe()
 
-      // Cleanup
       setLoading(false)
       return () => { supabase.removeChannel(channel) }
     } else {
@@ -102,8 +109,6 @@ function CustomerDashboard() {
       setLoading(false)
     }
   }
-
-  // Effect is handled below
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -113,6 +118,43 @@ function CustomerDashboard() {
   // Compute balance from txns
   const balance = txns.reduce((acc, t) => acc + (t.type === 'debit' ? t.amount : -t.amount), 0)
   const isOwed = balance > 0
+
+  const handleUPILink = async (amount: number, note: string) => {
+    if (!shopProfile?.upi_id) {
+      alert(ta ? "கடைக்காரர் இன்னும் UPI ID-ஐ இணைக்கவில்லை." : "Shop owner hasn't linked a UPI ID yet.")
+      return
+    }
+
+    const upiUrl = `upi://pay?pa=${shopProfile.upi_id}&pn=${encodeURIComponent(shopProfile.shop_name || 'Shop')}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`
+
+    // Open UPI app
+    window.location.href = upiUrl
+
+    // Show a dialog to confirm payment
+    setPaying(true)
+  }
+
+  const confirmPayment = async (amount: number, note: string) => {
+    if (!profile) return
+
+    setLoading(true)
+    const { error } = await supabase.from('txns').insert({
+      customer_id: profile.id,
+      user_id: shopId,
+      type: 'credit',
+      amount: amount,
+      note: note,
+      at: Date.now()
+    })
+
+    if (!error) {
+      setPaying(false)
+      // Re-fetch handled by realtime
+    } else {
+      alert(ta ? "பதிவு செய்வதில் பிழை" : "Error recording payment")
+    }
+    setLoading(false)
+  }
 
   const statusIcon = (s: string) => {
     if (s === 'pending') return <Clock className="size-3.5 text-amber-500" />
@@ -149,15 +191,70 @@ function CustomerDashboard() {
           </div>
         </div>
 
-        {loading ? (
+        {loading && !paying ? (
           <div className="flex-1 flex justify-center items-center">
             <div className="size-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
           </div>
         ) : profile ? (
           <div className="flex-1 px-4 py-4 space-y-4 overflow-y-auto pb-32">
+
+            {/* Payment Confirmation Overlay */}
+            {paying && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-6">
+                <div className="bg-background rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+                  <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CreditCard className="size-8 text-primary" />
+                  </div>
+                  <h3 className={`text-xl font-bold text-center mb-2 ${ta ? 'font-tamil' : 'font-display'}`}>
+                    {ta ? 'பணம் செலுத்திவிட்டீர்களா?' : 'Paid Successfully?'}
+                  </h3>
+                  <p className={`text-sm text-center text-muted-foreground mb-6 ${ta ? 'font-tamil' : 'font-display'}`}>
+                    {ta ? 'நீங்கள் பணம் செலுத்தியிருந்தால், அதை கணக்கில் சேர்க்க "ஆம்" என்பதை அழுத்தவும்.' : 'If you have completed the payment in the UPI app, click "Yes" to update your account.'}
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setPaying(false)}
+                      className={`h-12 rounded-xl border border-border font-bold ${ta ? 'font-tamil' : 'font-display'}`}>
+                      {ta ? 'இல்லை' : 'No'}
+                    </button>
+                    <button
+                      onClick={() => confirmPayment(Math.abs(balance), 'Online Payment')}
+                      className={`h-12 rounded-xl bg-primary text-primary-foreground font-bold shadow-soft ${ta ? 'font-tamil' : 'font-display'}`}>
+                      {ta ? 'ஆம், செலுத்தினேன்' : 'Yes, Paid'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Balance Card */}
+            <div className={`rounded-3xl p-5 shadow-sm relative overflow-hidden ${isOwed ? 'bg-red-50 border border-red-100' : 'bg-green-50 border border-green-100'}`}>
+              <div className="relative z-10">
+                <p className={`text-sm font-medium mb-1 ${ta ? 'font-tamil' : 'font-display'} ${isOwed ? 'text-red-500' : 'text-green-600'}`}>
+                  {isOwed
+                    ? (ta ? 'கொடுக்க வேண்டிய பாக்கி' : 'Pending Balance')
+                    : (ta ? 'கணக்கு சரியாக உள்ளது ✓' : 'Account Settled ✓')}
+                </p>
+                <div className="flex items-end justify-between gap-4">
+                  <h2 className={`text-5xl font-black tracking-tight font-display ${isOwed ? 'text-red-500' : 'text-green-600'}`}>
+                    ₹{Math.abs(balance)}
+                  </h2>
+                  {isOwed && (
+                    <button
+                      onClick={() => handleUPILink(Math.abs(balance), `Baki Payment - ${profile.name}`)}
+                      className="bg-primary text-primary-foreground px-4 py-2.5 rounded-xl text-sm font-bold shadow-soft active:scale-95 transition-all flex items-center gap-2"
+                    >
+                      <CreditCard className="size-4" />
+                      <span className={ta ? 'font-tamil' : ''}>{ta ? 'செலுத்துக' : 'Pay Now'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Quick Actions (Call / Feedback) */}
             <div className="flex gap-2">
-              <a href={`tel:${profile?.shopPhone || ''}`}
+              <a href={`tel:${shopProfile?.phone || profile?.shopPhone || ''}`}
                 className="flex-1 h-12 bg-background border border-border rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-sm">
                 <Phone className="size-4.5 text-primary" />
                 <span className={`text-xs font-bold ${ta ? 'font-tamil' : 'font-display'}`}>
@@ -172,18 +269,6 @@ function CustomerDashboard() {
                   {ta ? 'புகார் / கருத்து' : 'Feedback'}
                 </span>
               </button>
-            </div>
-
-            {/* Balance Card */}
-            <div className={`rounded-3xl p-5 shadow-sm ${isOwed ? 'bg-red-50 border border-red-100' : 'bg-green-50 border border-green-100'}`}>
-              <p className={`text-sm font-medium mb-1 ${ta ? 'font-tamil' : 'font-display'} ${isOwed ? 'text-red-500' : 'text-green-600'}`}>
-                {isOwed 
-                  ? (ta ? 'கொடுக்க வேண்டிய பாக்கி' : 'Pending Balance') 
-                  : (ta ? 'கணக்கு சரியாக உள்ளது ✓' : 'Account Settled ✓')}
-              </p>
-              <h2 className={`text-5xl font-black tracking-tight font-display ${isOwed ? 'text-red-500' : 'text-green-600'}`}>
-                ₹{Math.abs(balance)}
-              </h2>
             </div>
 
             {/* Order Water Button */}
