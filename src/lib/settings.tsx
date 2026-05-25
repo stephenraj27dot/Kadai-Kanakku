@@ -53,10 +53,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     if (savedPinHash) {
       setPinHashState(savedPinHash);
     } else {
-      setUnlocked(true); // If no PIN, always unlocked
+      setUnlocked(true);
     }
 
-    // Check session storage if already unlocked in this tab
     if (sessionStorage.getItem("bb_unlocked") === "true") {
       setUnlocked(true);
     }
@@ -64,17 +63,32 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!mounted) return;
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      if (systemTheme === 'dark') {
-          root.classList.add('dark');
+    const root = window.document.documentElement;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const applyTheme = () => {
+      root.classList.remove("light", "dark");
+      if (theme === "system") {
+        if (mediaQuery.matches) {
+          root.classList.add("dark");
+        } else {
+          root.classList.add("light");
+        }
+      } else {
+        root.classList.add(theme);
       }
-    } else {
-      root.classList.add(theme);
-    }
+    };
+
+    applyTheme();
+
+    // Listen for system theme changes if set to system
+    const listener = () => {
+      if (theme === "system") applyTheme();
+    };
+
+    mediaQuery.addEventListener("change", listener);
+    return () => mediaQuery.removeEventListener("change", listener);
   }, [theme, mounted]);
 
   const setTheme = (t: Theme) => {
@@ -155,7 +169,6 @@ export function useSettings() {
   return ctx;
 }
 
-// Simple hash utility (not crypto secure but enough for a simple shop app)
 export async function hashPin(pin: string): Promise<string> {
   const msgBuffer = new TextEncoder().encode(pin + "kadai"); // salt
   const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);

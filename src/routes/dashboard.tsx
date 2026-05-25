@@ -34,7 +34,7 @@ function Dashboard() {
 
   useEffect(() => {
     fetchOrderCount();
-    const channel = supabase.channel('order_sync')
+    const channel = supabase.channel('dashboard_sync')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
         fetchOrderCount();
       })
@@ -74,7 +74,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* New Orders Banner - Cleaned up */}
+      {/* New Orders Banner */}
       {pendingOrders > 0 && (
         <div className="px-5 -mt-6 mb-6 relative z-20">
           <Link to="/orders" className="flex items-center justify-between bg-amber-500 text-white p-4 rounded-[1.5rem] shadow-xl ring-4 ring-background animate-in slide-in-from-top-4">
@@ -94,15 +94,15 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Main Actions */}
+      {/* Main Actions - Fixed Transparency */}
       <div className={`px-5 grid grid-cols-2 gap-4 ${pendingOrders > 0 ? "" : "-mt-8"}`}>
-        <Link to="/customers/new" className="bg-card border border-border rounded-[1.5rem] p-5 flex flex-col items-center shadow-card press-scale transition-all">
-          <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3"><Plus className="size-6" strokeWidth={2.5} /></div>
-          <span className="font-bold text-sm">{t("addCustomer")}</span>
+        <Link to="/customers/new" className="bg-card border-2 border-border/10 rounded-[2rem] p-6 flex flex-col items-center shadow-card press-scale transition-all">
+          <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3"><Plus className="size-6" strokeWidth={2.8} /></div>
+          <span className="font-bold text-sm text-foreground">{t("addCustomer")}</span>
         </Link>
-        <Link to="/orders" className="bg-card border border-border rounded-[1.5rem] p-5 flex flex-col items-center shadow-card press-scale transition-all relative">
-          <div className="size-12 rounded-2xl bg-accent text-accent-foreground flex items-center justify-center mb-3"><ShoppingBag className="size-6" strokeWidth={2.5} /></div>
-          <span className="font-bold text-sm">{ta ? 'ஆர்டர்கள்' : 'Orders'}</span>
+        <Link to="/orders" className="bg-card border-2 border-border/10 rounded-[2rem] p-6 flex flex-col items-center shadow-card press-scale transition-all relative">
+          <div className="size-12 rounded-2xl bg-accent text-accent-foreground flex items-center justify-center mb-3"><ShoppingBag className="size-6" strokeWidth={2.8} /></div>
+          <span className="font-bold text-sm text-foreground">{ta ? 'ஆர்டர்கள்' : 'Orders'}</span>
           {pendingOrders > 0 && (
             <span className="absolute top-4 right-4 size-6 bg-amber-500 text-white text-[11px] font-black rounded-full flex items-center justify-center ring-4 ring-card">
               {pendingOrders}
@@ -111,7 +111,7 @@ function Dashboard() {
         </Link>
       </div>
 
-      {/* Recent Customers Section */}
+      {/* Recent Customers */}
       <div className="px-5 mt-10 pb-12">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-black font-display tracking-tight text-foreground">{t("recent")}</h2>
@@ -119,15 +119,11 @@ function Dashboard() {
         </div>
 
         <div className="space-y-3">
-          {recent.length === 0 ? (
-            <div className="text-center py-10 opacity-30 border-2 border-dashed border-border rounded-3xl">
-              <p className="text-sm font-bold">{ta ? "வாடிக்கையாளர்கள் இல்லை" : "No recent customers"}</p>
-            </div>
-          ) : recent.map((c) => (
+          {recent.map((c) => (
             <Link key={c.id} to="/customers/$id" params={{ id: c.id }} className="flex items-center gap-4 bg-card border border-border p-4 rounded-[1.5rem] shadow-sm active:scale-[0.98] transition-all">
               <Avatar name={c.name} size={50} />
               <div className="flex-1 min-w-0">
-                <div className="font-bold truncate text-base">{c.name}</div>
+                <div className="font-bold truncate text-base text-foreground">{c.name}</div>
                 <div className="text-[10px] text-muted-foreground font-black tracking-widest uppercase mt-0.5">{c.phone || "SAVED"}</div>
               </div>
               <div className="text-right">

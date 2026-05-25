@@ -141,12 +141,14 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
       {showSplash && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-primary text-white transition-opacity duration-500"
              style={{ opacity: phase === 'done' ? 0 : 1, pointerEvents: phase === 'done' ? 'none' : 'auto' }}>
-          <div className="flex flex-col items-center animate-in zoom-in duration-500">
-            <div className="size-24 bg-white/20 backdrop-blur-md rounded-[2rem] flex items-center justify-center shadow-2xl mb-6">
+          <div className="flex flex-col items-center animate-in zoom-in duration-500 text-center px-6">
+            <div className="size-24 bg-white/20 backdrop-blur-md rounded-[2.5rem] flex items-center justify-center shadow-2xl mb-6 border border-white/30">
                <img src="/logo.png" alt="Logo" className="size-16 rounded-2xl" />
             </div>
             <h1 className="text-4xl font-black font-display text-white tracking-tight">கடை கணக்கு</h1>
-            <p className="mt-2 text-white/70 font-medium">Digital Khata for Tamil Nadu</p>
+            <p className="mt-3 text-white/90 font-bold text-base font-tamil">
+              உங்கள் கடையின் நம்பிக்கையான கணக்குத் தோழன்
+            </p>
           </div>
           <div className="absolute bottom-12 flex gap-2">
             {[0, 1, 2].map(i => (
