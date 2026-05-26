@@ -40,6 +40,8 @@ function CustomerDashboard() {
   const [paying, setPaying] = useState(false)
   const [billAmount, setBillAmount] = useState('')
   const [billNote, setBillNote] = useState('')
+  const [newName, setNewName] = useState('')
+  const [registering, setRegistering] = useState(false)
 
   useEffect(() => { 
     let cleanupFunc: (() => void) | void;
@@ -159,6 +161,34 @@ function CustomerDashboard() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     navigate({ to: `/c/${shopId}/login`, replace: true })
+  }
+
+  const handleAutoRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newName.trim()) return
+    setRegistering(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    
+    const rawPhone = user.email?.split('@')[0]
+    const cleanPhone = rawPhone?.replace(/\D/g, '').slice(-10)
+    
+    const { data, error } = await supabase.from('customers').insert({
+      user_id: shopId,
+      auth_user_id: user.id,
+      name: newName.trim(),
+      phone: cleanPhone,
+      created_at: Date.now()
+    }).select().single()
+    
+    if (!error && data) {
+      setProfile(data)
+      setTxns([])
+      setOrders([])
+    } else {
+      alert(ta ? 'பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.' : 'Error creating account. Please try again.')
+    }
+    setRegistering(false)
   }
 
   // Compute balance from txns
@@ -480,18 +510,45 @@ function CustomerDashboard() {
 
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-            <div className="size-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
-              <User className="size-8" />
+          <div className="flex-1 flex flex-col items-center justify-center px-6">
+            <div className="size-20 bg-primary/10 text-primary rounded-[2rem] flex items-center justify-center mb-6 shadow-soft rotate-3">
+              <User className="size-10" />
             </div>
-            <h3 className={`text-lg font-bold mb-2 ${ta ? 'font-tamil' : 'font-display'}`}>
-              {ta ? 'கணக்கு கிடைக்கவில்லை' : 'Account Not Found'}
+            <h3 className={`text-2xl font-black tracking-tight mb-2 ${ta ? 'font-tamil' : 'font-display'}`}>
+              {ta ? 'கணக்கு தொடங்கவும்' : 'Join Shop'}
             </h3>
-            <p className={`text-muted-foreground text-sm ${ta ? 'font-tamil' : 'font-display'}`}>
+            <p className={`text-muted-foreground text-sm text-center mb-8 ${ta ? 'font-tamil' : 'font-display'}`}>
               {ta 
-                ? 'இந்த கடையின் வாடிக்கையாளர் பட்டியலில் உங்கள் மொபைல் எண் இல்லை. கடைக்காரரை தொடர்பு கொள்ளவும்.' 
-                : 'Your phone number is not registered in this shop. Please contact the shop owner.'}
+                ? 'உங்கள் பெயரை பதிவு செய்து கணக்கை தொடங்கவும்.' 
+                : 'Enter your name to start tracking your purchases.'}
             </p>
+            
+            <form onSubmit={handleAutoRegister} className="w-full max-w-sm">
+              <div className="flex flex-col gap-1.5 mb-6">
+                <label className={`text-sm font-bold ml-1 ${ta ? 'font-tamil' : 'font-display'}`}>
+                  {ta ? 'உங்கள் பெயர்' : 'Your Name'}
+                </label>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder={ta ? "பெயரை உள்ளிடவும்" : "Enter your name"}
+                  className="w-full h-14 bg-background rounded-2xl border-2 border-primary/20 px-4 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-display shadow-sm"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={registering || !newName.trim()}
+                className="w-full h-14 bg-primary text-primary-foreground font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg press-scale disabled:opacity-50"
+              >
+                {registering ? (
+                  <div className="size-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  ta ? 'உறுதி செய்' : 'Join Now'
+                )}
+              </button>
+            </form>
           </div>
         )}
       </div>

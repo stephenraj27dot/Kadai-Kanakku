@@ -31,7 +31,7 @@ type Ctx = {
   getCustomer: (id: string) => Customer | undefined;
   balanceOf: (c: Customer) => number;
   statusOf: (c: Customer) => "settled" | "partial" | "pending";
-  totals: () => { pending: number; pendingCount: number; partialCount: number; settledToday: number; salesToday: number };
+  totals: () => { pending: number; pendingCount: number; partialCount: number; settledToday: number; salesToday: number; settledThisMonth: number; salesThisMonth: number; };
 };
 
 const StoreContext = createContext<Ctx | null>(null);
@@ -115,9 +115,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const totals = () => {
-    let pending = 0, pendingCount = 0, partialCount = 0, settledToday = 0, salesToday = 0;
+    let pending = 0, pendingCount = 0, partialCount = 0;
+    let settledToday = 0, salesToday = 0;
+    let settledThisMonth = 0, salesThisMonth = 0;
+    
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
 
     for (const c of customers) {
       if (c.deletedAt) continue;
@@ -129,13 +136,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (s === "partial") partialCount++;
       }
       for (const t of c.txns) {
+        if (t.at >= startOfMonth.getTime()) {
+          if (t.type === "credit") settledThisMonth += t.amount;
+          if (t.type === "debit") salesThisMonth += t.amount;
+        }
         if (t.at >= startOfDay.getTime()) {
           if (t.type === "credit") settledToday += t.amount;
           if (t.type === "debit") salesToday += t.amount;
         }
       }
     }
-    return { pending, pendingCount, partialCount, settledToday, salesToday };
+    return { pending, pendingCount, partialCount, settledToday, salesToday, settledThisMonth, salesThisMonth };
   };
 
   const addCustomer: Ctx["addCustomer"] = async ({ name, phone, address, notes, opening }) => {

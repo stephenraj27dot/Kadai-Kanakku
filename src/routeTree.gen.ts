@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as PinSetupRouteImport } from './routes/pin-setup'
 import { Route as PinLockRouteImport } from './routes/pin-lock'
 import { Route as LanguageRouteImport } from './routes/language'
@@ -33,6 +34,11 @@ import { Route as CShopIdFeedbackRouteImport } from './routes/c.$shopId.feedback
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PinSetupRoute = PinSetupRouteImport.update({
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/language': typeof LanguageRoute
   '/pin-lock': typeof PinLockRoute
   '/pin-setup': typeof PinSetupRoute
+  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/c/$shopId': typeof CShopIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/language': typeof LanguageRoute
   '/pin-lock': typeof PinLockRoute
   '/pin-setup': typeof PinSetupRoute
+  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/customers/new': typeof CustomersNewRoute
   '/customers': typeof CustomersIndexRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/language': typeof LanguageRoute
   '/pin-lock': typeof PinLockRoute
   '/pin-setup': typeof PinSetupRoute
+  '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/c/$shopId': typeof CShopIdRouteWithChildren
   '/customers/new': typeof CustomersNewRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/language'
     | '/pin-lock'
     | '/pin-setup'
+    | '/reports'
     | '/settings'
     | '/c/$shopId'
     | '/customers/new'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/language'
     | '/pin-lock'
     | '/pin-setup'
+    | '/reports'
     | '/settings'
     | '/customers/new'
     | '/customers'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/language'
     | '/pin-lock'
     | '/pin-setup'
+    | '/reports'
     | '/settings'
     | '/c/$shopId'
     | '/customers/new'
@@ -272,6 +284,7 @@ export interface RootRouteChildren {
   LanguageRoute: typeof LanguageRoute
   PinLockRoute: typeof PinLockRoute
   PinSetupRoute: typeof PinSetupRoute
+  ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
   CShopIdRoute: typeof CShopIdRouteWithChildren
   CustomersNewRoute: typeof CustomersNewRoute
@@ -290,6 +303,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pin-setup': {
@@ -454,6 +474,7 @@ const rootRouteChildren: RootRouteChildren = {
   LanguageRoute: LanguageRoute,
   PinLockRoute: PinLockRoute,
   PinSetupRoute: PinSetupRoute,
+  ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
   CShopIdRoute: CShopIdRouteWithChildren,
   CustomersNewRoute: CustomersNewRoute,

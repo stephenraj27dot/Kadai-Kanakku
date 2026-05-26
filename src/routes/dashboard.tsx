@@ -6,7 +6,7 @@ import { useSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Plus, Users, ShoppingBag, Settings as SettingsIcon, QrCode, X, Copy, Share2 } from "lucide-react";
+import { ArrowUpRight, Plus, Users, ShoppingBag, Settings as SettingsIcon, QrCode, X, Copy, Share2, BarChart3 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 
 export const Route = createFileRoute("/dashboard")({
@@ -176,24 +176,43 @@ function Dashboard() {
       )}
 
       {/* Main Actions - Enhanced Visibility for Shop Owners */}
-      <div className={`px-5 grid grid-cols-2 gap-4 ${pendingOrders > 0 ? "mt-6" : "-mt-8 relative z-20"}`}>
+      <div className={`px-5 space-y-4 ${pendingOrders > 0 ? "mt-6" : "-mt-8 relative z-20"}`}>
+        <div className="grid grid-cols-2 gap-4">
+          <Link
+            to="/customers/new"
+            className="bg-card border-2 border-primary/20 rounded-[1.75rem] p-6 flex flex-col items-center shadow-xl press-scale group"
+          >
+            <div className="size-14 rounded-2xl bg-primary text-white flex items-center justify-center mb-3 shadow-glow group-hover:scale-110 transition-transform">
+              <Plus className="size-8" strokeWidth={3} />
+            </div>
+            <span className="font-black text-sm uppercase tracking-tight text-primary">{t("addCustomer")}</span>
+          </Link>
+          <Link
+            to="/orders"
+            className="bg-card border-2 border-primary/10 rounded-[1.75rem] p-6 flex flex-col items-center shadow-xl press-scale group"
+          >
+            <div className="size-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <ShoppingBag className="size-8" strokeWidth={2.5} />
+            </div>
+            <span className="font-black text-sm uppercase tracking-tight text-foreground/80">{ta ? 'ஆர்டர்கள்' : 'Orders'}</span>
+          </Link>
+        </div>
+        
+        {/* Reports Button */}
         <Link
-          to="/customers/new"
-          className="bg-card border-2 border-primary/20 rounded-[1.75rem] p-6 flex flex-col items-center shadow-xl press-scale group"
+          to="/reports"
+          className="bg-primary text-primary-foreground border-2 border-primary rounded-[1.75rem] p-5 flex items-center justify-between shadow-xl press-scale group"
         >
-          <div className="size-14 rounded-2xl bg-primary text-white flex items-center justify-center mb-3 shadow-glow group-hover:scale-110 transition-transform">
-            <Plus className="size-8" strokeWidth={3} />
+          <div className="flex items-center gap-3">
+            <div className="size-12 rounded-xl bg-white/20 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+              <BarChart3 className="size-6" strokeWidth={2.5} />
+            </div>
+            <div>
+              <p className="font-black text-lg tracking-tight">{ta ? 'வியாபார விவரங்கள்' : 'Reports & Analytics'}</p>
+              <p className="text-xs font-medium opacity-80">{ta ? 'தினசரி & மாதாந்திர வியாபாரம்' : 'Daily & Monthly Turnover'}</p>
+            </div>
           </div>
-          <span className="font-black text-sm uppercase tracking-tight text-primary">{t("addCustomer")}</span>
-        </Link>
-        <Link
-          to="/orders"
-          className="bg-card border-2 border-primary/10 rounded-[1.75rem] p-6 flex flex-col items-center shadow-xl press-scale group"
-        >
-          <div className="size-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-            <ShoppingBag className="size-8" strokeWidth={2.5} />
-          </div>
-          <span className="font-black text-sm uppercase tracking-tight text-foreground/80">{ta ? 'ஆர்டர்கள்' : 'Orders'}</span>
+          <ArrowUpRight className="size-5 opacity-70" />
         </Link>
       </div>
 
