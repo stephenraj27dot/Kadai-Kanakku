@@ -49,31 +49,32 @@ function CustomerDashboard() {
   useEffect(() => { 
     let cleanupFunc: (() => void) | void;
     let pollInterval: any;
+  useEffect(() => {
+    let cleanupFunc: (() => void) | undefined;
+    let isMounted = true;
 
     const init = async () => {
       cleanupFunc = await loadCustomerData();
-      
-      // If customer is not found yet, auto-retry every 3 seconds (so they don't have to refresh)
-      if (!cleanupFunc) {
-        pollInterval = setInterval(async () => {
-          const cleanup = await loadCustomerData();
-          if (cleanup) {
-            cleanupFunc = cleanup;
-            clearInterval(pollInterval);
-          }
-        }, 3000);
-      }
     };
     init();
 
+    const pollInterval = setInterval(() => {
+      if (isMounted && !registering) {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user && profile) loadCustomerData(true);
+        });
+      }
+    }, 15_000);
+
     return () => { 
+      isMounted = false;
       if (cleanupFunc) cleanupFunc();
-      if (pollInterval) clearInterval(pollInterval);
+      clearInterval(pollInterval);
     }
   }, [])
 
-  const loadCustomerData = async () => {
-    setLoading(true)
+  const loadCustomerData = async (silent = false) => {
+    if (!silent) setLoading(true)
     const { data: { session } } = await supabase.auth.getSession()
     const user = session?.user
     if (!user) return navigate({ to: `/c/${shopId}/login`, replace: true })
@@ -154,17 +155,17 @@ function CustomerDashboard() {
         })
         .subscribe()
 
-      setLoading(false)
+      if (!silent) setLoading(false)
       return () => { supabase.removeChannel(channel) }
     } else {
       setProfile(null)
       // Pre-fill phone if available from auth
-      if (user?.email) {
+      if (user?.email && !silent) {
         const rawPhone = user.email.split('@')[0]
         const cleanPhone = rawPhone.replace(/\D/g, '').slice(-10)
         if (cleanPhone.length >= 10) setNewPhone(cleanPhone)
       }
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
