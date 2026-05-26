@@ -64,9 +64,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#16A34A" },
       { title: "Kadai Kanakku — Shop Khata for Tamil Nadu" },
       { name: "description", content: "Simple digital baki notebook for local shop owners." },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Kadai Kanakku" },
     ],
     links: [
       { rel: "icon", href: "/logo.png", type: "image/png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icon-192.png" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -119,7 +124,6 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
   const [phase, setPhase] = useState<"logo" | "text" | "loading" | "done">("logo");
 
   useEffect(() => {
-    // We check if it's the first time in this session
     if (sessionStorage.getItem('splash_shown') === 'true') {
       setShowSplash(false);
       return;
@@ -143,8 +147,7 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-primary text-white transition-opacity duration-500"
              style={{ opacity: phase === 'done' ? 0 : 1, pointerEvents: phase === 'done' ? 'none' : 'auto' }}>
 
-          {/* Main Content Area - No initial logo, direct animation */}
-          <div className="flex flex-col items-center text-center px-6">
+          <div className="flex flex-col items-center text-center px-6 relative z-10">
             <div className={`transition-all duration-700 transform ${phase === 'logo' ? 'scale-90 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}`}>
               <h1 className="text-5xl font-black font-display text-white tracking-tighter shadow-sm">
                 கடை கணக்கு
@@ -155,17 +158,15 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {/* Loading Indicator */}
           <div className={`absolute bottom-16 flex gap-2 transition-opacity duration-300 ${phase === 'loading' ? 'opacity-100' : 'opacity-0'}`}>
             {[0, 1, 2].map(i => (
               <div key={i} className="size-2 bg-white rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
             ))}
           </div>
 
-          {/* Decorative background pulses */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] bg-white/5 rounded-full animate-pulse" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[300px] bg-white/5 rounded-full animate-pulse delay-700" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] bg-white/5 rounded-full animate-pulse" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[350px] bg-white/5 rounded-full animate-pulse delay-700" />
           </div>
         </div>
       )}
@@ -175,6 +176,18 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  // Register Service Worker for PWA
+  useEffect(() => {
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js", { scope: "/" })
+          .then(reg => console.log("SW registered", reg))
+          .catch(err => console.log("SW error", err));
+      });
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

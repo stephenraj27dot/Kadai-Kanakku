@@ -22,41 +22,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Safety timeout to prevent infinite loading
-    const timer = setTimeout(() => {
-      if (loading) {
-        console.warn("Auth check timed out. Please check your Supabase keys.");
+    // 1. Initial check: Try to get session immediately from local storage
+    const checkSession = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (initialSession) {
+          setSession(initialSession);
+          setUser(initialSession.user);
+        }
+      } catch (err) {
+        console.error("Session check error:", err);
+      } finally {
         setLoading(false);
       }
-    }, 5000);
+    };
 
-    supabase.auth.getSession()
-      .then(({ data: { session } }) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-      })
-      .catch(err => {
-        console.error("Supabase session error:", err);
-      })
-      .finally(() => {
-        setLoading(false);
-        clearTimeout(timer);
-      });
+    checkSession();
 
+    // 2. Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timer);
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
   };
 
   return (

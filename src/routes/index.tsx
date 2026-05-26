@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 
@@ -13,18 +13,29 @@ function Splash() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // 1. Wait until auth status is fully determined
     if (loading) return;
-    const hasLang = typeof window !== "undefined" && localStorage.getItem("bb_lang");
-    if (!hasLang) {
-      navigate({ to: "/language", replace: true });
-    } else if (!session) {
-      navigate({ to: "/auth", replace: true });
-    } else if (isPinSetup && !isUnlocked) {
-      navigate({ to: "/pin-lock", replace: true });
-    } else {
-      navigate({ to: "/dashboard", replace: true });
-    }
+
+    const checkNavigation = async () => {
+      const hasLang = typeof window !== "undefined" && localStorage.getItem("bb_lang");
+
+      if (!hasLang) {
+        navigate({ to: "/language", replace: true });
+      } else if (!session) {
+        navigate({ to: "/auth", replace: true });
+      } else if (isPinSetup && !isUnlocked) {
+        navigate({ to: "/pin-lock", replace: true });
+      } else {
+        navigate({ to: "/dashboard", replace: true });
+      }
+    };
+
+    checkNavigation();
   }, [navigate, isPinSetup, isUnlocked, session, loading]);
 
-  return null;
+  return (
+    <div className="min-h-screen bg-primary flex items-center justify-center">
+      {/* Empty screen during initial logic check to prevent flicker */}
+    </div>
+  );
 }
