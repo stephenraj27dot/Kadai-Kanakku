@@ -46,9 +46,6 @@ function CustomerDashboard() {
   const [registering, setRegistering] = useState(false)
   const [showScanner, setShowScanner] = useState(false)
 
-  useEffect(() => { 
-    let cleanupFunc: (() => void) | void;
-    let pollInterval: any;
   useEffect(() => {
     let cleanupFunc: (() => void) | undefined;
     let isMounted = true;
