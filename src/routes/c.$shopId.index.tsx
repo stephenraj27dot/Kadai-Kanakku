@@ -47,7 +47,7 @@ function CustomerDashboard() {
   const [showScanner, setShowScanner] = useState(false)
 
   useEffect(() => {
-    let cleanupFunc: (() => void) | undefined;
+    let cleanupFunc: (() => void) | void;
     let isMounted = true;
 
     const init = async () => {
