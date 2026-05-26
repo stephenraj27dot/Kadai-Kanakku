@@ -87,7 +87,7 @@ function CustomerDashboard() {
 
     let { data: custRows } = await supabase
       .from('customers').select('*')
-      .eq('user_id', shopId).eq('auth_user_id', user.id).limit(1)
+      .eq('user_id', shopId).eq('auth_user_id', user.id).is('deleted_at', null).limit(1)
 
     let customer = custRows && custRows.length > 0 ? custRows[0] : null
 
@@ -104,6 +104,7 @@ function CustomerDashboard() {
           .select('*')
           .eq('user_id', shopId)
           .is('auth_user_id', null)
+          .is('deleted_at', null)
 
         if (allUnlinked && last10.length === 10) {
           const matchedRow = allUnlinked.find(c => {
@@ -192,6 +193,7 @@ function CustomerDashboard() {
       .select('*')
       .eq('user_id', shopId)
       .is('auth_user_id', null)
+      .is('deleted_at', null)
 
     let matchedCustomer = null
 

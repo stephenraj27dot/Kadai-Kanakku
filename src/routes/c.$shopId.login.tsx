@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { PhoneShell } from '@/components/PhoneShell'
-import { User, Lock, ArrowRight } from 'lucide-react'
+import { User, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react'
 
 export const Route = createFileRoute('/c/$shopId/login')({
   component: CustomerLogin,
@@ -16,6 +16,7 @@ function CustomerLogin() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -113,14 +114,21 @@ function CustomerLogin() {
                 <Lock className="size-4.5" />
               </div>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="பாஸ்வேர்ட் உள்ளிடவும்"
-                className="w-full h-12 bg-background rounded-xl border border-input pl-10 pr-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-display"
+                className="w-full h-12 bg-background rounded-xl border border-input pl-10 pr-12 text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-display"
                 required
                 minLength={6}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+              >
+                {showPassword ? <EyeOff className="size-4.5" /> : <Eye className="size-4.5" />}
+              </button>
             </div>
           </div>
 
