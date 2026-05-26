@@ -164,7 +164,7 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
         <div
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
           style={{
-            background: 'var(--background)',
+            background: '#ffffff',
             opacity: fadeOut ? 0 : 1,
             transition: fadeOut ? 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
             pointerEvents: fadeOut ? 'none' : 'auto',
@@ -179,7 +179,7 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
             <img
               src="/splash-logo.jpg"
               alt="Kadai Kanakku"
-              className="w-[85vw] max-w-[320px] h-auto object-contain animate-splash-pulse mix-blend-multiply dark:mix-blend-normal dark:bg-white dark:rounded-3xl dark:p-4 dark:shadow-2xl"
+              className="w-[85vw] max-w-[320px] h-auto object-contain animate-splash-pulse mix-blend-multiply"
               loading="eager"
               fetchPriority="high"
             />
