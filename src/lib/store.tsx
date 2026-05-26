@@ -109,8 +109,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       })
       .subscribe();
 
+    // Polling fallback every 15s — Supabase Realtime + RLS won't notify
+    // the owner when a *different* auth user (customer) inserts a txn row.
+    const poll = setInterval(() => {
+      fetchCustomers();
+    }, 15_000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [user]);
 
