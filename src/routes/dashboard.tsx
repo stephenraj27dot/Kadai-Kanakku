@@ -6,7 +6,7 @@ import { useSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Plus, Users, ShoppingBag, Settings as SettingsIcon, QrCode, X, Copy, Share2, BarChart3 } from "lucide-react";
+import { ArrowUpRight, Plus, Users, ShoppingBag, Settings as SettingsIcon, QrCode, X, Copy, Share2, BarChart3, Download } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 
 export const Route = createFileRoute("/dashboard")({
@@ -95,12 +95,23 @@ function Dashboard() {
               </p>
 
               {/* Giant QR Code */}
-              <div className="bg-white p-5 rounded-[2rem] shadow-2xl shadow-black/30 mb-8">
+              <div className="bg-white p-5 rounded-[2rem] shadow-2xl shadow-black/30 mb-6 flex flex-col items-center relative group">
                 <img 
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(shopUrl)}`} 
                   alt="Shop QR Code" 
-                  className="w-64 h-64 sm:w-72 sm:h-72"
+                  className="w-64 h-64 sm:w-72 sm:h-72 mb-4"
                 />
+                
+                <a 
+                  href={`https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=${encodeURIComponent(shopUrl)}`}
+                  download={`Kadai_Kanakku_QR_${user?.id?.slice(0,6)}.png`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-primary text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 transition-all text-sm w-full justify-center"
+                >
+                  <Download className="size-4" />
+                  {ta ? 'பிரிண்ட் செய்ய Download செய்' : 'Download for Print'}
+                </a>
               </div>
 
               {/* Kadai Kanakku Branding */}
