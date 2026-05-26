@@ -70,60 +70,72 @@ function Dashboard() {
 
         {/* QR Code Modal */}
         {showQR && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-6 text-foreground">
-            <div className="bg-background rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col items-center relative">
+          <div className="fixed inset-0 z-50 bg-gradient-to-b from-primary via-primary to-primary/95 flex flex-col text-white animate-in fade-in zoom-in-95 duration-300">
+            {/* Close Button */}
+            <div className="flex justify-end p-5">
               <button 
                 onClick={() => setShowQR(false)} 
-                className="absolute top-4 right-4 p-2 bg-muted rounded-full"
+                className="size-12 bg-white/15 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 press-scale"
               >
-                <X className="size-5 text-muted-foreground" />
+                <X className="size-6" />
               </button>
-              
-              <h3 className={`text-xl font-bold text-center mt-2 mb-1 ${ta ? 'font-tamil' : 'font-display'}`}>
-                {ta ? 'உங்கள் கடையின் QR கோட்' : 'Your Shop QR Code'}
-              </h3>
-              <p className={`text-xs text-center text-muted-foreground mb-6 ${ta ? 'font-tamil' : 'font-display'}`}>
-                {ta ? 'வாடிக்கையாளர்கள் இதை ஸ்கேன் செய்து தங்கள் கணக்கை பார்க்கலாம்.' : 'Customers can scan this to view their account.'}
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 flex flex-col items-center justify-center px-8 -mt-8">
+              {/* Shop Name */}
+              <h2 className={`text-2xl font-black text-center mb-1 tracking-tight ${ta ? 'font-tamil' : 'font-display'}`}>
+                {shopName || (ta ? 'உங்கள் கடை' : 'Your Shop')}
+              </h2>
+              <p className={`text-sm text-white/60 text-center mb-8 ${ta ? 'font-tamil' : 'font-display'}`}>
+                {ta ? 'வாடிக்கையாளர்கள் ஸ்கேன் செய்யவும்' : 'Customers scan to connect'}
               </p>
-              
-              <div className="p-4 bg-white rounded-2xl border-4 border-primary/20 shadow-lg mb-6">
+
+              {/* Giant QR Code */}
+              <div className="bg-white p-5 rounded-[2rem] shadow-2xl shadow-black/30 mb-8">
                 <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://kadai-kanakku.vercel.app/c/${user?.id}`} 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=https://kadai-kanakku.vercel.app/c/${user?.id}`} 
                   alt="Shop QR Code" 
-                  className="w-48 h-48"
+                  className="w-64 h-64 sm:w-72 sm:h-72"
                 />
               </div>
 
-              <div className="w-full">
-                <div className="bg-muted p-3 rounded-xl flex items-center justify-between mb-4 border border-border">
-                  <span className="text-xs truncate text-muted-foreground font-mono mr-3">
-                    kadai-kanakku.vercel.app/c/{user?.id?.slice(0, 8)}...
-                  </span>
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(`https://kadai-kanakku.vercel.app/c/${user?.id}`)
-                      alert(ta ? 'லிங்க் காப்பி செய்யப்பட்டது!' : 'Link copied to clipboard!')
-                    }}
-                    className="p-2 bg-primary text-primary-foreground rounded-lg flex items-center gap-2 press-scale"
-                  >
-                    <Copy className="size-4" />
-                    <span className="text-xs font-bold">{ta ? 'காப்பி' : 'Copy'}</span>
-                  </button>
-                </div>
-                
-                <button
+              {/* Kadai Kanakku Branding */}
+              <p className="text-xs font-bold text-white/40 uppercase tracking-[0.3em] mb-6">Kadai Kanakku</p>
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="px-6 pb-8 space-y-3">
+              {/* Copy Link */}
+              <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl flex items-center justify-between border border-white/10">
+                <span className="text-xs truncate text-white/70 font-mono mr-3">
+                  kadai-kanakku.vercel.app/c/{user?.id?.slice(0, 8)}...
+                </span>
+                <button 
                   onClick={() => {
-                    const text = ta 
-                      ? `வணக்கம்! எங்கள் கடையின் உங்களது பாக்கி விவரங்களை இங்கே பார்க்கலாம்: https://kadai-kanakku.vercel.app/c/${user?.id}`
-                      : `Hello! Check your account balance at our shop here: https://kadai-kanakku.vercel.app/c/${user?.id}`
-                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+                    navigator.clipboard.writeText(`https://kadai-kanakku.vercel.app/c/${user?.id}`)
+                    alert(ta ? 'லிங்க் காப்பி செய்யப்பட்டது!' : 'Link copied!')
                   }}
-                  className={`w-full h-12 rounded-xl bg-[#25D366] text-white font-bold shadow-soft flex items-center justify-center gap-2 press-scale ${ta ? 'font-tamil' : 'font-display'}`}
+                  className="px-4 py-2 bg-white text-primary rounded-xl flex items-center gap-2 press-scale font-bold text-xs shrink-0"
                 >
-                  <Share2 className="size-5" />
-                  {ta ? 'வாட்ஸ்அப்பில் பகிர' : 'Share on WhatsApp'}
+                  <Copy className="size-3.5" />
+                  {ta ? 'காப்பி' : 'Copy'}
                 </button>
               </div>
+              
+              {/* WhatsApp Share */}
+              <button
+                onClick={() => {
+                  const text = ta 
+                    ? `வணக்கம்! எங்கள் கடையின் உங்களது பாக்கி விவரங்களை இங்கே பார்க்கலாம்: https://kadai-kanakku.vercel.app/c/${user?.id}`
+                    : `Hello! Check your account balance at our shop here: https://kadai-kanakku.vercel.app/c/${user?.id}`
+                  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+                }}
+                className={`w-full h-14 rounded-2xl bg-[#25D366] text-white font-bold shadow-lg flex items-center justify-center gap-2.5 press-scale text-base ${ta ? 'font-tamil' : 'font-display'}`}
+              >
+                <Share2 className="size-5" />
+                {ta ? 'வாட்ஸ்அப்பில் பகிர' : 'Share on WhatsApp'}
+              </button>
             </div>
           </div>
         )}
