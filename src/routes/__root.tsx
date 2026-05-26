@@ -121,7 +121,7 @@ function AppGuard({ children }: { children: React.ReactNode }) {
 
 function GlobalSplash({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
-  const [phase, setPhase] = useState<"logo" | "text" | "loading" | "done">("logo");
+  const [phase, setPhase] = useState<"text" | "loading" | "done">("text");
 
   useEffect(() => {
     if (sessionStorage.getItem('splash_shown') === 'true') {
@@ -130,14 +130,14 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
     }
     
     sessionStorage.setItem('splash_shown', 'true');
-    const t1 = setTimeout(() => setPhase("text"), 100);
-    const t2 = setTimeout(() => setPhase("loading"), 400);
-    const t3 = setTimeout(() => {
+    // Rapidly sequence the animation
+    const t1 = setTimeout(() => setPhase("loading"), 600);
+    const t2 = setTimeout(() => {
       setPhase("done");
       setTimeout(() => setShowSplash(false), 500);
-    }, 1800);
+    }, 2000);
 
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
   return (
@@ -148,8 +148,8 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
              style={{ opacity: phase === 'done' ? 0 : 1, pointerEvents: phase === 'done' ? 'none' : 'auto' }}>
 
           <div className="flex flex-col items-center text-center px-6 relative z-10">
-            <div className={`transition-all duration-700 transform ${phase === 'logo' ? 'scale-90 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'}`}>
-              <h1 className="text-5xl font-black font-display text-white tracking-tighter shadow-sm">
+            <div className="animate-in zoom-in-95 fade-in duration-700">
+              <h1 className="text-5xl font-black font-display text-white tracking-tighter drop-shadow-md">
                 கடை கணக்கு
               </h1>
               <p className="mt-4 text-white/90 font-bold text-lg font-tamil animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-300">
@@ -177,12 +177,11 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  // Register Service Worker for PWA
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("/sw.js", { scope: "/" })
-          .then(reg => console.log("SW registered", reg))
+          .then(reg => console.log("SW registered"))
           .catch(err => console.log("SW error", err));
       });
     }
