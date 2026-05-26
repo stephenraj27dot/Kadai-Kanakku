@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { PhoneShell } from '@/components/PhoneShell'
 import { supabase } from '@/lib/supabase'
 import { useEffect, useState } from 'react'
-import { LogOut, User, Droplets, ReceiptText, MessageSquare, Phone, ChevronRight, Clock, CheckCircle, XCircle, Settings, CreditCard } from 'lucide-react'
+import { LogOut, User, Droplets, ReceiptText, MessageSquare, Phone, ChevronRight, Clock, CheckCircle, XCircle, Settings, CreditCard, QrCode } from 'lucide-react'
+import { QRScanner } from '@/components/QRScanner'
 import { useI18n } from '@/lib/i18n'
 
 export const Route = createFileRoute('/c/$shopId/')({
@@ -42,6 +43,7 @@ function CustomerDashboard() {
   const [billNote, setBillNote] = useState('')
   const [newName, setNewName] = useState('')
   const [registering, setRegistering] = useState(false)
+  const [showScanner, setShowScanner] = useState(false)
 
   useEffect(() => { 
     let cleanupFunc: (() => void) | void;
@@ -289,6 +291,9 @@ function CustomerDashboard() {
               {ta ? 'என் கணக்கு' : 'My Account'}
             </h1>
             <div className="flex gap-2">
+              <button onClick={() => setShowScanner(true)} className="p-2 bg-white/20 rounded-full active:scale-95 transition-transform flex items-center justify-center">
+                <QrCode className="size-4.5" />
+              </button>
               <button onClick={() => navigate({ to: `/c/${shopId}/settings` })} className="p-2 bg-white/20 rounded-full active:scale-95 transition-transform">
                 <Settings className="size-4.5" />
               </button>
@@ -552,6 +557,22 @@ function CustomerDashboard() {
           </div>
         )}
       </div>
+
+      {showScanner && (
+        <QRScanner 
+          ta={ta} 
+          onClose={() => setShowScanner(false)} 
+          onScan={(text) => {
+            if (text.includes('upi://')) {
+              window.location.href = text;
+            } else if (text.startsWith('http')) {
+              window.location.href = text;
+            } else {
+              alert(ta ? 'தவறான QR கோடு' : 'Invalid QR Code');
+            }
+          }} 
+        />
+      )}
     </PhoneShell>
   )
 }
