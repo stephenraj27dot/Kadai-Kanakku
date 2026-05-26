@@ -22,24 +22,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Initial check: Try to get session immediately from local storage
+    // Fast path: Try to get session from local memory/storage immediately
     const checkSession = async () => {
-      try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        if (initialSession) {
-          setSession(initialSession);
-          setUser(initialSession.user);
-        }
-      } catch (err) {
-        console.error("Session check error:", err);
-      } finally {
-        setLoading(false);
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      if (initialSession) {
+        setSession(initialSession);
+        setUser(initialSession.user);
       }
+      setLoading(false); // Auth status is now known
     };
 
     checkSession();
 
-    // 2. Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);

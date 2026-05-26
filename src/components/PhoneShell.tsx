@@ -10,7 +10,10 @@ export function PhoneShell({ children, hideNav = false }: { children: ReactNode;
         className="relative w-full max-w-2xl bg-background flex flex-col mx-auto"
         style={{ minHeight: "100svh" }}
       >
-        <div className="flex-1 overflow-y-auto" style={{ paddingBottom: hideNav ? "0px" : "80px" }}>
+        <div
+          className="flex-1 overflow-y-auto animate-page-enter"
+          style={{ paddingBottom: hideNav ? "0px" : "80px" }}
+        >
           {children}
         </div>
         {!hideNav && <BottomNav />}

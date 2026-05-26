@@ -10,7 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import { I18nProvider } from "@/lib/i18n";
-import { StoreProvider } from "@/lib/store";
+import { StoreProvider, useStore } from "@/lib/store";
 import { SettingsProvider, useSettings } from "@/lib/settings";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { useEffect, useState } from "react";
@@ -60,15 +60,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#1E40AF" },
-      { title: "Kadai Kanakku — Shop Khata for Tamil Nadu" },
-      { name: "description", content: "Simple digital baki notebook for local shop owners." },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" },
+      { name: "theme-color", content: "#16A34A" },
+      { title: "Kadai Kanakku" },
+      { name: "description", content: "Digital ledger for Tamil Nadu shop owners." },
+      { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Kadai Kanakku" },
     ],
     links: [
+      { rel: "icon", type: "image/png", href: "/logo.png" },
+      { rel: "apple-touch-icon", href: "/logo.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -88,7 +91,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body style={{ backgroundColor: "#1E40AF" }}>
+      <body className="bg-background">
         {children}
         <Scripts />
       </body>
@@ -103,10 +106,8 @@ function AppGuard({ children }: { children: React.ReactNode }) {
   
   useEffect(() => {
     if (loading) return;
-    
     const path = router.state.location.pathname;
     const isPublic = path === "/" || path === "/language" || path === "/pin-setup" || path === "/pin-lock" || path === "/auth" || path.startsWith("/c/");
-    
     if (!session && !isPublic) {
       router.navigate({ to: "/auth", replace: true });
     } else if (session && isPinSetup && !isUnlocked && !isPublic) {
@@ -118,52 +119,81 @@ function AppGuard({ children }: { children: React.ReactNode }) {
 }
 
 function GlobalSplash({ children }: { children: React.ReactNode }) {
+  const { loading } = useAuth();
   const [showSplash, setShowSplash] = useState(true);
-  const [phase, setPhase] = useState<"text" | "loading" | "done">("text");
+  const [fadeOut, setFadeOut] = useState(false);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+
+  // Minimum 2.2 seconds so user sees the full branding animation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinTimeElapsed(true);
+    }, 2200);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
-    if (sessionStorage.getItem('splash_shown') === 'true') {
-      setShowSplash(false);
-      return;
+    if (minTimeElapsed && !loading) {
+      setFadeOut(true);
+      // 500ms smooth fade-out before removing splash from DOM
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, 500);
+      return () => clearTimeout(timer);
     }
-    
-    sessionStorage.setItem('splash_shown', 'true');
-    const t1 = setTimeout(() => setPhase("loading"), 500);
-    const t2 = setTimeout(() => {
-      setPhase("done");
-      setTimeout(() => setShowSplash(false), 500);
-    }, 1800);
-
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+  }, [minTimeElapsed, loading]);
 
   return (
     <>
-      {children}
+      {/* Dashboard pre-rendered silently in background so it's ready instantly */}
+      <main
+        className="w-full min-h-screen"
+        style={{
+          visibility: showSplash && !fadeOut ? 'hidden' : 'visible',
+          position: showSplash && !fadeOut ? 'fixed' : 'static',
+          inset: showSplash && !fadeOut ? '0' : 'auto',
+          overflow: showSplash && !fadeOut ? 'hidden' : 'visible',
+          opacity: fadeOut ? 1 : (showSplash ? 0 : 1),
+          transition: fadeOut ? 'opacity 0.5s ease' : 'none',
+        }}
+      >
+        {children}
+      </main>
+
       {showSplash && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center text-white transition-opacity duration-500"
-             style={{ backgroundColor: "#1E40AF", opacity: phase === 'done' ? 0 : 1, pointerEvents: phase === 'done' ? 'none' : 'auto' }}>
-
-          <div className="flex flex-col items-center text-center px-6 relative z-10">
-            <div className="animate-in zoom-in-95 fade-in duration-700">
-              <h1 className="text-5xl font-black font-display text-white tracking-tighter drop-shadow-md">
-                கடை கணக்கு
-              </h1>
-              <p className="mt-4 text-white/90 font-bold text-lg font-tamil animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-300">
-                உங்கள் கடையின் நம்பிக்கையான கணக்குத் தோழன்
-              </p>
-            </div>
+        <div
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+          style={{
+            background: 'var(--background)',
+            opacity: fadeOut ? 0 : 1,
+            transition: fadeOut ? 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+            pointerEvents: fadeOut ? 'none' : 'auto',
+          }}
+        >
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center animate-splash-logo"
+            style={{
+              transform: fadeOut ? 'scale(1.15)' : 'scale(1)',
+              transition: fadeOut ? 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+            }}
+          >
+            <img
+              src="/splash-logo.jpg"
+              alt="Kadai Kanakku"
+              className="w-[85vw] max-w-[320px] h-auto object-contain animate-splash-pulse mix-blend-multiply dark:mix-blend-normal dark:bg-white dark:rounded-3xl dark:p-4 dark:shadow-2xl"
+              loading="eager"
+              fetchPriority="high"
+            />
           </div>
 
-          <div className={`absolute bottom-16 flex gap-2 transition-opacity duration-300 ${phase === 'loading' ? 'opacity-100' : 'opacity-0'}`}>
+          {/* Loading indicator dots at bottom */}
+          <div className="absolute bottom-16 left-0 right-0 flex gap-3 justify-center z-10">
             {[0, 1, 2].map(i => (
-              <div key={i} className="size-2 bg-white rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+              <div
+                key={i}
+                className="size-2.5 bg-primary/50 rounded-full animate-bounce"
+                style={{ animationDelay: `${i * 0.15}s`, animationDuration: '0.6s' }}
+              />
             ))}
-          </div>
-
-          <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] bg-white/5 rounded-full animate-pulse" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[350px] bg-white/5 rounded-full animate-pulse delay-700" />
           </div>
         </div>
       )}
@@ -174,30 +204,20 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/sw.js", { scope: "/" })
-          .then(reg => console.log("SW registered"))
-          .catch(err => console.log("SW error", err));
-      });
-    }
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SettingsProvider>
-          <I18nProvider>
-            <StoreProvider>
+        <StoreProvider>
+          <SettingsProvider>
+            <I18nProvider>
               <GlobalSplash>
                 <AppGuard>
                   <Outlet />
                 </AppGuard>
               </GlobalSplash>
-            </StoreProvider>
-          </I18nProvider>
-        </SettingsProvider>
+            </I18nProvider>
+          </SettingsProvider>
+        </StoreProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

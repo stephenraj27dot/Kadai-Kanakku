@@ -52,150 +52,72 @@
 }
 
 /* ══════════════════════════════════════════════
-   LIGHT MODE — Forest Canopy × Tamil Retail
+   LIGHT MODE — Overhaul
 ══════════════════════════════════════════════ */
 html, body {
   scroll-behavior: smooth;
+  background-color: var(--background);
 }
 
 :root {
   --radius: 1rem;
-
-  /* Background: warm cream with a hint of green freshness */
-  --background: oklch(0.978 0.006 140);
-  --foreground: oklch(0.18 0.025 155);
-
-  /* Cards: pure white, crisp */
+  --background: oklch(0.985 0.005 140);
+  --foreground: oklch(0.15 0.02 155);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.025 155);
-
+  --card-foreground: oklch(0.15 0.02 155);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.025 155);
-
-  /* Primary: Rich Forest Green #16A34A */
+  --popover-foreground: oklch(0.15 0.02 155);
   --primary: oklch(0.627 0.17 148);
   --primary-foreground: oklch(1 0 0);
-
-  --secondary: oklch(0.955 0.018 148);
-  --secondary-foreground: oklch(0.28 0.06 148);
-
-  --muted: oklch(0.955 0.012 148);
-  --muted-foreground: oklch(0.52 0.025 155);
-
-  /* Accent: Forest sage green */
-  --accent: oklch(0.94 0.04 148);
-  --accent-foreground: oklch(0.32 0.12 148);
-
-  --destructive: oklch(0.637 0.22 27);
-  --destructive-foreground: oklch(1 0 0);
-
-  /* Pending: #EF4444 red */
-  --pending: oklch(0.637 0.22 27);
-  --pending-foreground: oklch(1 0 0);
-
-  /* Partial: #F59E0B warm amber */
-  --partial: oklch(0.75 0.165 72);
-  --partial-foreground: oklch(0.25 0.06 72);
-
-  --border: oklch(0.91 0.018 148);
-  --input: oklch(0.91 0.018 148);
+  --secondary: oklch(0.96 0.015 148);
+  --secondary-foreground: oklch(0.25 0.05 148);
+  --muted: oklch(0.96 0.01 148);
+  --muted-foreground: oklch(0.45 0.02 155);
+  --accent: oklch(0.94 0.03 148);
+  --accent-foreground: oklch(0.28 0.1 148);
+  --destructive: oklch(0.6 0.18 25);
+  --pending: oklch(0.78 0.16 75);
+  --pending-foreground: oklch(0.25 0.06 75);
+  --partial: oklch(0.82 0.14 75);
+  --partial-foreground: oklch(0.3 0.08 75);
+  --border: oklch(0.92 0.015 148);
+  --input: oklch(0.92 0.015 148);
   --ring: oklch(0.627 0.17 148);
-
-  /* Charts */
-  --chart-1: oklch(0.627 0.17 148);
-  --chart-2: oklch(0.637 0.22 27);
-  --chart-3: oklch(0.75 0.165 72);
-  --chart-4: oklch(0.55 0.15 230);
-  --chart-5: oklch(0.6 0.12 300);
 }
 
 /* ══════════════════════════════════════════════
-   DARK MODE — Forest Canopy Night
+   DARK MODE — System theme / user override
 ══════════════════════════════════════════════ */
 .dark {
-  --background: oklch(0.155 0.022 155);
-  --foreground: oklch(0.96 0.008 148);
-
-  --card: oklch(0.205 0.022 155);
-  --card-foreground: oklch(0.96 0.008 148);
-
-  --popover: oklch(0.205 0.022 155);
-  --popover-foreground: oklch(0.96 0.008 148);
-
-  /* Primary: brighter green in dark mode */
-  --primary: oklch(0.685 0.175 148);
-  --primary-foreground: oklch(0.1 0.02 155);
-
-  --secondary: oklch(0.255 0.028 155);
-  --secondary-foreground: oklch(0.96 0.008 148);
-
-  --muted: oklch(0.255 0.022 155);
-  --muted-foreground: oklch(0.68 0.022 148);
-
-  --accent: oklch(0.27 0.055 148);
-  --accent-foreground: oklch(0.88 0.06 148);
-
-  --destructive: oklch(0.695 0.22 27);
-  --destructive-foreground: oklch(0.98 0 0);
-
-  --pending: oklch(0.695 0.22 27);
-  --pending-foreground: oklch(0.98 0 0);
-
-  --partial: oklch(0.78 0.165 72);
-  --partial-foreground: oklch(0.82 0.14 72);
-
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.685 0.175 148);
-
-  --chart-1: oklch(0.685 0.175 148);
-  --chart-2: oklch(0.695 0.22 27);
-  --chart-3: oklch(0.78 0.165 72);
-  --chart-4: oklch(0.62 0.15 230);
-  --chart-5: oklch(0.67 0.12 300);
+  --background: oklch(0.115 0.015 155);
+  --foreground: oklch(0.93 0.01 140);
+  --card: oklch(0.16 0.016 155);
+  --card-foreground: oklch(0.93 0.01 140);
+  --popover: oklch(0.16 0.016 155);
+  --popover-foreground: oklch(0.93 0.01 140);
+  --primary: oklch(0.66 0.17 148);
+  --primary-foreground: oklch(0.08 0.01 155);
+  --secondary: oklch(0.21 0.022 148);
+  --secondary-foreground: oklch(0.85 0.025 148);
+  --muted: oklch(0.185 0.016 155);
+  --muted-foreground: oklch(0.56 0.022 155);
+  --accent: oklch(0.22 0.032 148);
+  --accent-foreground: oklch(0.85 0.05 148);
+  --destructive: oklch(0.65 0.22 25);
+  --pending: oklch(0.78 0.165 75);
+  --pending-foreground: oklch(0.95 0.02 75);
+  --partial: oklch(0.80 0.145 75);
+  --partial-foreground: oklch(0.95 0.02 75);
+  --border: oklch(0.26 0.022 155);
+  --input: oklch(0.22 0.02 155);
+  --ring: oklch(0.66 0.17 148);
 }
 
-/* ══════════════════════════════════════════════
-   SYSTEM AUTO DARK MODE
-══════════════════════════════════════════════ */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --background: oklch(0.155 0.022 155);
-    --foreground: oklch(0.96 0.008 148);
-    --card: oklch(0.205 0.022 155);
-    --card-foreground: oklch(0.96 0.008 148);
-    --popover: oklch(0.205 0.022 155);
-    --popover-foreground: oklch(0.96 0.008 148);
-    --primary: oklch(0.685 0.175 148);
-    --primary-foreground: oklch(0.1 0.02 155);
-    --secondary: oklch(0.255 0.028 155);
-    --secondary-foreground: oklch(0.96 0.008 148);
-    --muted: oklch(0.255 0.022 155);
-    --muted-foreground: oklch(0.68 0.022 148);
-    --accent: oklch(0.27 0.055 148);
-    --accent-foreground: oklch(0.88 0.06 148);
-    --destructive: oklch(0.695 0.22 27);
-    --destructive-foreground: oklch(0.98 0 0);
-    --pending: oklch(0.695 0.22 27);
-    --pending-foreground: oklch(0.98 0 0);
-    --partial: oklch(0.78 0.165 72);
-    --partial-foreground: oklch(0.82 0.14 72);
-    --border: oklch(1 0 0 / 9%);
-    --input: oklch(1 0 0 / 12%);
-    --ring: oklch(0.685 0.175 148);
-  }
-}
-
-/* ══════════════════════════════════════════════
-   BASE STYLES
-══════════════════════════════════════════════ */
 @layer base {
   * {
     border-color: var(--color-border);
-    transition: background-color 0.2s ease, color 0.15s ease, border-color 0.2s ease;
   }
-
-  html, body {
+  body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
@@ -226,6 +148,27 @@ html, body {
 /* ══════════════════════════════════════════════
    ANIMATIONS
 ══════════════════════════════════════════════ */
+
+/* Splash screen logo entrance */
+@keyframes splashScale {
+  0%   { opacity: 0; transform: scale(0.82); }
+  50%  { opacity: 1; transform: scale(1.04); }
+  75%  { transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Subtle pulse while splash is waiting */
+@keyframes splashPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.85; }
+}
+
+/* Page entry - used on every route mount */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -314,6 +257,23 @@ html, body {
 
 .animate-glow {
   animation: greenGlow 2.5s ease-in-out infinite;
+}
+
+/* Splash logo */
+.animate-splash-logo {
+  animation: splashScale 0.75s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-splash-pulse {
+  animation: splashPulse 1.8s ease-in-out infinite;
+  animation-delay: 0.8s;
+}
+
+/* Page entry */
+.animate-page-enter {
+  animation: pageEnter 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
 }
 
 /* Staggered list items */
@@ -436,7 +396,7 @@ html, body {
 
 .badge-pending {
   background: oklch(0.637 0.22 27 / 0.1);
-  color: var(--color-pending);
+  color: var(--color-destructive);
   border: 1px solid oklch(0.637 0.22 27 / 0.2);
 }
 
