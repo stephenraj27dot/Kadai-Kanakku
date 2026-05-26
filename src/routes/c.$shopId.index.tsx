@@ -65,13 +65,36 @@ function CustomerDashboard() {
     let customer = custRows && custRows.length > 0 ? custRows[0] : null
 
     if (!customer) {
-      const phone = user.email?.split('@')[0]
-      if (phone) {
-        const { data: matched } = await supabase
-          .from('customers').update({ auth_user_id: user.id })
-          .eq('user_id', shopId).eq('phone', phone).is('auth_user_id', null)
-          .select()
-        if (matched && matched.length > 0) customer = matched[0]
+      // Extract phone from the fake email (e.g., "9876543210@kadaikanakku.com" → "9876543210")
+      const rawPhone = user.email?.split('@')[0]
+      if (rawPhone) {
+        const last10 = rawPhone.replace(/\D/g, '').slice(-10)
+
+        // Fetch ALL unlinked customers for this shop, then match by last-10-digits
+        // This handles any format the owner may have typed (spaces, +91, etc.)
+        const { data: allUnlinked } = await supabase
+          .from('customers')
+          .select('*')
+          .eq('user_id', shopId)
+          .is('auth_user_id', null)
+
+        if (allUnlinked && last10.length === 10) {
+          const matchedRow = allUnlinked.find(c => {
+            const storedClean = (c.phone || '').replace(/\D/g, '').slice(-10)
+            return storedClean === last10
+          })
+
+          if (matchedRow) {
+            // Link the customer row to this Supabase auth user permanently
+            const { data: linked } = await supabase
+              .from('customers')
+              .update({ auth_user_id: user.id })
+              .eq('id', matchedRow.id)
+              .select()
+              .single()
+            if (linked) customer = linked
+          }
+        }
       }
     }
 
@@ -110,6 +133,7 @@ function CustomerDashboard() {
     }
   }
 
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     navigate({ to: `/c/${shopId}/login`, replace: true })
@@ -130,30 +154,8 @@ function CustomerDashboard() {
     // Open UPI app
     window.location.href = upiUrl
 
-    // Show a dialog to confirm payment
+    // Show verification info dialog
     setPaying(true)
-  }
-
-  const confirmPayment = async (amount: number, note: string) => {
-    if (!profile) return
-
-    setLoading(true)
-    const { error } = await supabase.from('txns').insert({
-      customer_id: profile.id,
-      user_id: shopId,
-      type: 'credit',
-      amount: amount,
-      note: note,
-      at: Date.now()
-    })
-
-    if (!error) {
-      setPaying(false)
-      // Re-fetch handled by realtime
-    } else {
-      alert(ta ? "பதிவு செய்வதில் பிழை" : "Error recording payment")
-    }
-    setLoading(false)
   }
 
   const statusIcon = (s: string) => {
@@ -198,7 +200,7 @@ function CustomerDashboard() {
         ) : profile ? (
           <div className="flex-1 px-4 py-4 space-y-4 overflow-y-auto pb-32">
 
-            {/* Payment Confirmation Overlay */}
+            {/* Payment Info Overlay - Secure: no self-confirm */}
             {paying && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-6">
                 <div className="bg-background rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
@@ -206,23 +208,20 @@ function CustomerDashboard() {
                     <CreditCard className="size-8 text-primary" />
                   </div>
                   <h3 className={`text-xl font-bold text-center mb-2 ${ta ? 'font-tamil' : 'font-display'}`}>
-                    {ta ? 'பணம் செலுத்திவிட்டீர்களா?' : 'Paid Successfully?'}
+                    {ta ? 'UPI பேமென்ட்' : 'UPI Payment'}
                   </h3>
-                  <p className={`text-sm text-center text-muted-foreground mb-6 ${ta ? 'font-tamil' : 'font-display'}`}>
-                    {ta ? 'நீங்கள் பணம் செலுத்தியிருந்தால், அதை கணக்கில் சேர்க்க "ஆம்" என்பதை அழுத்தவும்.' : 'If you have completed the payment in the UPI app, click "Yes" to update your account.'}
-                  </p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => setPaying(false)}
-                      className={`h-12 rounded-xl border border-border font-bold ${ta ? 'font-tamil' : 'font-display'}`}>
-                      {ta ? 'இல்லை' : 'No'}
-                    </button>
-                    <button
-                      onClick={() => confirmPayment(Math.abs(balance), 'Online Payment')}
-                      className={`h-12 rounded-xl bg-primary text-primary-foreground font-bold shadow-soft ${ta ? 'font-tamil' : 'font-display'}`}>
-                      {ta ? 'ஆம், செலுத்தினேன்' : 'Yes, Paid'}
-                    </button>
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-4">
+                    <p className={`text-xs font-bold text-amber-700 ${ta ? 'font-tamil' : 'font-display'}`}>
+                      {ta 
+                        ? 'UPI ஆப்பில் பணம் செலுத்தியிருந்தால், கடைக்காரர் சரிபார்த்த பிறகு உங்கள் கணக்கில் தானாக வரவு வைக்கப்படும்.'
+                        : 'If you paid in your UPI app, it will be settled in your account once the shop owner verifies the payment.'}
+                    </p>
                   </div>
+                  <button
+                    onClick={() => setPaying(false)}
+                    className={`w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold shadow-soft ${ta ? 'font-tamil' : 'font-display'}`}>
+                    {ta ? 'சரி, புரிந்தது' : 'OK, Got it'}
+                  </button>
                 </div>
               </div>
             )}

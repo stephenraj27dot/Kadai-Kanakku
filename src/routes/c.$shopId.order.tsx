@@ -52,7 +52,7 @@ function CustomerOrder() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return navigate({ to: `/c/${shopId}/login`, replace: true })
 
-    // Find customer profile
+    // Find customer profile - first try by auth_user_id (fast path)
     const { data: custRows } = await supabase
       .from('customers')
       .select('id, name')
@@ -60,7 +60,30 @@ function CustomerOrder() {
       .eq('auth_user_id', user.id)
       .limit(1)
 
-    const customer = custRows && custRows.length > 0 ? custRows[0] : null
+    let customer = custRows && custRows.length > 0 ? custRows[0] : null
+
+    if (!customer) {
+      // Fallback: match by last 10 digits of phone (handles spaces, +91, etc.)
+      const rawPhone = user.email?.split('@')[0]
+      if (rawPhone) {
+        const last10 = rawPhone.replace(/\D/g, '').slice(-10)
+        const { data: allUnlinked } = await supabase
+          .from('customers')
+          .select('id, name, phone')
+          .eq('user_id', shopId)
+          .is('auth_user_id', null)
+        if (allUnlinked && last10.length === 10) {
+          const matchedRow = allUnlinked.find(c => {
+            const storedClean = (c.phone || '').replace(/\D/g, '').slice(-10)
+            return storedClean === last10
+          })
+          if (matchedRow) {
+            await supabase.from('customers').update({ auth_user_id: user.id }).eq('id', matchedRow.id)
+            customer = matchedRow
+          }
+        }
+      }
+    }
 
     if (!customer) {
       const msg = ta ? 'உங்கள் கணக்கு கிடைக்கவில்லை.' : 'Your account was not found.'
