@@ -353,19 +353,19 @@ function CustomerDashboard() {
             {/* POS - Ultra Simple */}
             <div className="bg-background rounded-3xl border-2 border-primary/20 shadow-lg overflow-hidden">
               {/* Amount Display */}
-              <div className="bg-primary/5 px-5 pt-5 pb-4">
-                <p className={`text-xs font-black text-primary/60 uppercase tracking-widest mb-2 ${ta ? 'font-tamil' : ''}`}>
-                  {ta ? 'தொகை உள்ளிடுக' : 'Enter Amount'}
+              <div className="bg-white px-6 pt-8 pb-8 rounded-t-3xl border-b-2 border-primary/5">
+                <p className={`text-xs font-black text-primary/80 uppercase tracking-widest mb-3 ${ta ? 'font-tamil' : ''}`}>
+                  {ta ? 'பில் தொகை (Bill Amount)' : 'Enter Amount'}
                 </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-4xl font-black text-primary/40">₹</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-6xl font-black text-primary">₹</span>
                   <input
                     type="number"
                     inputMode="numeric"
                     value={billAmount}
                     onChange={e => setBillAmount(e.target.value)}
                     placeholder="0"
-                    className="flex-1 text-5xl font-black text-primary bg-transparent outline-none w-full placeholder:text-primary/20"
+                    className="flex-1 text-7xl font-black text-primary bg-transparent outline-none w-full placeholder:text-primary/20 tracking-tighter"
                   />
                 </div>
               </div>
