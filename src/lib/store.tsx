@@ -93,6 +93,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchCustomers();
+
+    if (!user) return;
+
+    // Real-time sync for global store
+    const channel = supabase.channel('global_store_sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'txns' }, () => {
+        fetchCustomers();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, () => {
+        fetchCustomers();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        fetchCustomers();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const totals = () => {
