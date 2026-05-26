@@ -239,7 +239,7 @@ function CustomerDashboard() {
       setTxns([])
       setOrders([])
     } else {
-      alert(ta ? 'பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.' : 'Error creating account. Please try again.')
+      alert(ta ? `பிழை ஏற்பட்டது: ${resultError?.message}` : `Error creating account: ${resultError?.message}`)
     }
     setRegistering(false)
   }
