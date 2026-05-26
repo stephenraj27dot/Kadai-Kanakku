@@ -311,51 +311,48 @@ function CustomerDashboard() {
               </div>
             )}
 
-            {/* POS Self-Checkout Card */}
-            <div className="bg-background rounded-3xl p-5 border-2 border-primary/20 shadow-lg relative overflow-hidden mb-2">
-              <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-4 py-1.5 rounded-bl-2xl font-bold text-xs tracking-wider shadow-sm">
-                {ta ? 'புதிய பில்' : 'New Bill'}
-              </div>
-              <div className="pt-2">
-                <p className={`text-sm font-bold mb-2 ${ta ? 'font-tamil' : 'font-display'} text-foreground/80`}>
-                  {ta ? 'பொருட்கள் / குறிப்பு:' : 'Items / Note:'}
+            {/* POS - Ultra Simple */}
+            <div className="bg-background rounded-3xl border-2 border-primary/20 shadow-lg overflow-hidden">
+              {/* Amount Display */}
+              <div className="bg-primary/5 px-5 pt-5 pb-4">
+                <p className={`text-xs font-black text-primary/60 uppercase tracking-widest mb-2 ${ta ? 'font-tamil' : ''}`}>
+                  {ta ? 'தொகை உள்ளிடுக' : 'Enter Amount'}
                 </p>
-                <input 
-                  type="text" 
-                  value={billNote}
-                  onChange={e => setBillNote(e.target.value)}
-                  placeholder={ta ? "உ.ம்: மளிகை சாமான்" : "e.g., Groceries"}
-                  className="w-full h-12 bg-muted/50 rounded-xl px-4 text-sm font-display mb-4 border border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all outline-none"
-                />
-                <p className={`text-sm font-bold mb-2 ${ta ? 'font-tamil' : 'font-display'} text-foreground/80`}>
-                  {ta ? 'பில் தொகை (₹):' : 'Bill Amount (₹):'}
-                </p>
-                <input 
-                  type="number" 
-                  value={billAmount}
-                  onChange={e => setBillAmount(e.target.value)}
-                  placeholder="₹ 0"
-                  className="w-full h-14 bg-muted/50 rounded-xl px-4 text-2xl font-black font-display mb-5 text-primary border border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all outline-none"
-                />
-                
-                <div className="grid grid-cols-2 gap-3">
-                  <button 
-                    onClick={handlePOSUPI}
-                    disabled={!billAmount || loading}
-                    className="h-12 bg-green-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-soft press-scale disabled:opacity-50"
-                  >
-                    <CreditCard className="size-4.5" />
-                    <span className={ta ? 'font-tamil text-[13px]' : 'text-sm'}>{ta ? 'Pay Now (UPI)' : 'Pay Now (UPI)'}</span>
-                  </button>
-                  <button 
-                    onClick={handlePOSBaki}
-                    disabled={!billAmount || loading}
-                    className="h-12 bg-primary text-primary-foreground font-bold rounded-xl flex items-center justify-center gap-2 shadow-soft press-scale disabled:opacity-50"
-                  >
-                    <Clock className="size-4.5" />
-                    <span className={ta ? 'font-tamil text-[13px]' : 'text-sm'}>{ta ? 'பாக்கி வைக்க' : 'Keep as Baki'}</span>
-                  </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-4xl font-black text-primary/40">₹</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={billAmount}
+                    onChange={e => setBillAmount(e.target.value)}
+                    placeholder="0"
+                    className="flex-1 text-5xl font-black text-primary bg-transparent outline-none w-full placeholder:text-primary/20"
+                  />
                 </div>
+              </div>
+
+              {/* Two Big Action Buttons */}
+              <div className="grid grid-cols-2">
+                <button
+                  onClick={handlePOSUPI}
+                  disabled={!billAmount || loading}
+                  className="py-5 bg-green-600 text-white flex flex-col items-center justify-center gap-1.5 active:brightness-90 transition-all disabled:opacity-40"
+                >
+                  <CreditCard className="size-6" />
+                  <span className={`font-black text-sm ${ta ? 'font-tamil' : ''}`}>
+                    {ta ? 'UPI Pay' : 'Pay (UPI)'}
+                  </span>
+                </button>
+                <button
+                  onClick={handlePOSBaki}
+                  disabled={!billAmount || loading}
+                  className="py-5 bg-primary text-primary-foreground flex flex-col items-center justify-center gap-1.5 active:brightness-90 transition-all disabled:opacity-40"
+                >
+                  <Clock className="size-6" />
+                  <span className={`font-black text-sm ${ta ? 'font-tamil' : ''}`}>
+                    {ta ? 'பாக்கி' : 'Baki'}
+                  </span>
+                </button>
               </div>
             </div>
 
