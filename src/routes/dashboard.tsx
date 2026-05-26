@@ -94,7 +94,7 @@ function Dashboard() {
               {/* Giant QR Code */}
               <div className="bg-white p-5 rounded-[2rem] shadow-2xl shadow-black/30 mb-8">
                 <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=https://kadai-kanakku.vercel.app/c/${user?.id}`} 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=https://kadai-kanakku.vercel.app/c/${user?.id}/`} 
                   alt="Shop QR Code" 
                   className="w-64 h-64 sm:w-72 sm:h-72"
                 />
@@ -113,7 +113,7 @@ function Dashboard() {
                 </span>
                 <button 
                   onClick={() => {
-                    navigator.clipboard.writeText(`https://kadai-kanakku.vercel.app/c/${user?.id}`)
+                    navigator.clipboard.writeText(`https://kadai-kanakku.vercel.app/c/${user?.id}/`)
                     alert(ta ? 'லிங்க் காப்பி செய்யப்பட்டது!' : 'Link copied!')
                   }}
                   className="px-4 py-2 bg-white text-primary rounded-xl flex items-center gap-2 press-scale font-bold text-xs shrink-0"
@@ -127,8 +127,8 @@ function Dashboard() {
               <button
                 onClick={() => {
                   const text = ta 
-                    ? `வணக்கம்! எங்கள் கடையின் உங்களது பாக்கி விவரங்களை இங்கே பார்க்கலாம்: https://kadai-kanakku.vercel.app/c/${user?.id}`
-                    : `Hello! Check your account balance at our shop here: https://kadai-kanakku.vercel.app/c/${user?.id}`
+                    ? `வணக்கம்! எங்கள் கடையின் உங்களது பாக்கி விவரங்களை இங்கே பார்க்கலாம்: https://kadai-kanakku.vercel.app/c/${user?.id}/`
+                    : `Hello! Check your account balance at our shop here: https://kadai-kanakku.vercel.app/c/${user?.id}/`
                   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
                 }}
                 className={`w-full h-14 rounded-2xl bg-[#25D366] text-white font-bold shadow-lg flex items-center justify-center gap-2.5 press-scale text-base ${ta ? 'font-tamil' : 'font-display'}`}
