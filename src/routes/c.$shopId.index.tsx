@@ -177,18 +177,63 @@ function CustomerDashboard() {
     if (!newName.trim() || !newPhone.trim()) return
     setRegistering(true)
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) {
+      setRegistering(false)
+      return
+    }
     
-    const { data, error } = await supabase.from('customers').insert({
-      user_id: shopId,
-      auth_user_id: user.id,
-      name: newName.trim(),
-      phone: newPhone.trim(),
-      created_at: Date.now()
-    }).select().single()
+    // Clean phone number (last 10 digits)
+    let cleanPhone = newPhone.replace(/\D/g, "")
+    if (cleanPhone.length > 10) cleanPhone = cleanPhone.slice(-10)
+
+    // 1. Fetch unlinked customers for this shop
+    const { data: unlinked } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('user_id', shopId)
+      .is('auth_user_id', null)
+
+    let matchedCustomer = null
+
+    if (unlinked && unlinked.length > 0) {
+      // Find match by phone or name
+      const targetName = newName.trim().toLowerCase()
+      
+      matchedCustomer = unlinked.find(c => {
+        const cPhone = c.phone ? c.phone.replace(/\D/g, "").slice(-10) : ""
+        const cName = c.name.toLowerCase()
+        return (cPhone === cleanPhone) || (cName === targetName)
+      })
+    }
+
+    let resultData = null
+    let resultError = null
+
+    if (matchedCustomer) {
+      // Update existing customer
+      const { data, error } = await supabase
+        .from('customers')
+        .update({ auth_user_id: user.id, phone: cleanPhone })
+        .eq('id', matchedCustomer.id)
+        .select()
+        .single()
+      resultData = data
+      resultError = error
+    } else {
+      // Create new customer
+      const { data, error } = await supabase.from('customers').insert({
+        user_id: shopId,
+        auth_user_id: user.id,
+        name: newName.trim(),
+        phone: cleanPhone,
+        created_at: Date.now()
+      }).select().single()
+      resultData = data
+      resultError = error
+    }
     
-    if (!error && data) {
-      setProfile(data)
+    if (!resultError && resultData) {
+      setProfile(resultData)
       setTxns([])
       setOrders([])
     } else {

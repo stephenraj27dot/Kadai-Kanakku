@@ -24,9 +24,14 @@ function AddCustomer() {
     e.preventDefault();
     if (!name.trim()) return;
     const n = Number(opening);
+    
+    // Clean phone: remove non-digits, take last 10
+    let cleanPhone = phone.replace(/\D/g, "");
+    if (cleanPhone.length > 10) cleanPhone = cleanPhone.slice(-10);
+
     const id = await addCustomer({ 
       name: name.trim(), 
-      phone: phone.trim() || undefined,
+      phone: cleanPhone || undefined,
       address: address.trim() || undefined,
       notes: notes.trim() || undefined,
       opening: n > 0 ? n : undefined 
