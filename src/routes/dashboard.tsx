@@ -74,8 +74,32 @@ function Dashboard() {
         </div>
       </div>
 
+      {/* Pending Orders Notification Widget */}
+      {pendingOrders > 0 && (
+        <div className="px-5 mt-4 -mb-2 relative z-20">
+          <Link to="/orders" className="block bg-amber-400 text-amber-950 rounded-2xl p-4 flex items-center justify-between shadow-lg shadow-amber-500/30 animate-pulse press-scale">
+            <div className="flex items-center gap-3">
+              <div className="size-10 bg-amber-950 text-amber-400 rounded-xl flex items-center justify-center font-black text-xl">
+                {pendingOrders}
+              </div>
+              <div>
+                <p className={`font-bold text-lg leading-tight ${ta ? 'font-tamil' : 'font-display'}`}>
+                  {ta ? 'புதிய ஆர்டர்கள் வந்துள்ளது!' : 'New Orders Received!'}
+                </p>
+                <p className={`text-xs font-semibold opacity-80 ${ta ? 'font-tamil' : 'font-display'}`}>
+                  {ta ? 'உடனே பார்க்கவும்' : 'Tap to view and deliver'}
+                </p>
+              </div>
+            </div>
+            <div className="bg-amber-950/10 p-2 rounded-full">
+              <ArrowUpRight className="size-5" />
+            </div>
+          </Link>
+        </div>
+      )}
+
       {/* Main Actions - Enhanced Visibility for Shop Owners */}
-      <div className={`px-5 grid grid-cols-2 gap-4 ${pendingOrders > 0 ? "" : "-mt-8"}`}>
+      <div className={`px-5 grid grid-cols-2 gap-4 ${pendingOrders > 0 ? "mt-6" : "-mt-8 relative z-20"}`}>
         <Link
           to="/customers/new"
           className="bg-card border-2 border-primary/20 rounded-[1.75rem] p-6 flex flex-col items-center shadow-xl press-scale group"

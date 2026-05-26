@@ -41,8 +41,28 @@ function CustomerDashboard() {
 
   useEffect(() => { 
     let cleanupFunc: (() => void) | void;
-    loadCustomerData().then(c => { cleanupFunc = c; });
-    return () => { if (cleanupFunc) cleanupFunc(); }
+    let pollInterval: any;
+
+    const init = async () => {
+      cleanupFunc = await loadCustomerData();
+      
+      // If customer is not found yet, auto-retry every 3 seconds (so they don't have to refresh)
+      if (!cleanupFunc) {
+        pollInterval = setInterval(async () => {
+          const cleanup = await loadCustomerData();
+          if (cleanup) {
+            cleanupFunc = cleanup;
+            clearInterval(pollInterval);
+          }
+        }, 3000);
+      }
+    };
+    init();
+
+    return () => { 
+      if (cleanupFunc) cleanupFunc();
+      if (pollInterval) clearInterval(pollInterval);
+    }
   }, [])
 
   const loadCustomerData = async () => {
