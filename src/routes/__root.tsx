@@ -61,7 +61,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#16A34A" },
+      { name: "theme-color", content: "#1E40AF" },
       { title: "Kadai Kanakku — Shop Khata for Tamil Nadu" },
       { name: "description", content: "Simple digital baki notebook for local shop owners." },
       { name: "apple-mobile-web-app-capable", content: "yes" },
@@ -69,9 +69,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "Kadai Kanakku" },
     ],
     links: [
-      { rel: "icon", href: "/logo.png", type: "image/png" },
+      { rel: "icon", href: "/logo.svg", type: "image/svg+xml" },
       { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/icon-192.png" },
+      { rel: "apple-touch-icon", href: "/logo.svg" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -130,7 +130,6 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
     }
     
     sessionStorage.setItem('splash_shown', 'true');
-    // Rapidly sequence the animation
     const t1 = setTimeout(() => setPhase("loading"), 600);
     const t2 = setTimeout(() => {
       setPhase("done");
@@ -144,8 +143,8 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
     <>
       {children}
       {showSplash && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-primary text-white transition-opacity duration-500"
-             style={{ opacity: phase === 'done' ? 0 : 1, pointerEvents: phase === 'done' ? 'none' : 'auto' }}>
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center text-white transition-opacity duration-500"
+             style={{ backgroundColor: "#1E40AF", opacity: phase === 'done' ? 0 : 1, pointerEvents: phase === 'done' ? 'none' : 'auto' }}>
 
           <div className="flex flex-col items-center text-center px-6 relative z-10">
             <div className="animate-in zoom-in-95 fade-in duration-700">
