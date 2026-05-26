@@ -1,9 +1,9 @@
 {
   "name": "Kadai Kanakku",
   "short_name": "Kadai Kanakku",
-  "description": "Simple digital baki notebook for local shop owners.",
-  "theme_color": "#16A34A",
-  "background_color": "#16A34A",
+  "description": "Digital Ledger for Tamil Nadu Shop Owners",
+  "theme_color": "#1E40AF",
+  "background_color": "#1E40AF",
   "display": "standalone",
   "orientation": "portrait",
   "scope": "/",
@@ -16,16 +16,16 @@
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icon-512.png",

@@ -17,12 +17,13 @@ export default defineConfig({
     plugins: [
       VitePWA({
         registerType: "autoUpdate",
+        injectRegister: "auto",
         manifest: {
           name: "Kadai Kanakku",
           short_name: "Kadai Kanakku",
-          description: "Simple digital baki notebook for local shop owners.",
-          theme_color: "#16a34a",
-          background_color: "#ffffff",
+          description: "Digital Ledger for Tamil Nadu Shop Owners",
+          theme_color: "#1E40AF",
+          background_color: "#1E40AF",
           display: "standalone",
           start_url: "/",
           icons: [
@@ -33,16 +34,16 @@ export default defineConfig({
               purpose: "any"
             },
             {
-              src: "/icon-512.png",
-              sizes: "512x512",
-              type: "image/png",
-              purpose: "any"
-            },
-            {
               src: "/icon-192.png",
               sizes: "192x192",
               type: "image/png",
               purpose: "maskable"
+            },
+            {
+              src: "/icon-512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any"
             },
             {
               src: "/icon-512.png",

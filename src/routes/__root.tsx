@@ -69,9 +69,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "Kadai Kanakku" },
     ],
     links: [
-      { rel: "icon", href: "/logo.svg", type: "image/svg+xml" },
       { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/logo.svg" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -90,7 +88,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body style={{ backgroundColor: "#1E40AF" }}>
         {children}
         <Scripts />
       </body>
@@ -130,11 +128,11 @@ function GlobalSplash({ children }: { children: React.ReactNode }) {
     }
     
     sessionStorage.setItem('splash_shown', 'true');
-    const t1 = setTimeout(() => setPhase("loading"), 600);
+    const t1 = setTimeout(() => setPhase("loading"), 500);
     const t2 = setTimeout(() => {
       setPhase("done");
       setTimeout(() => setShowSplash(false), 500);
-    }, 2000);
+    }, 1800);
 
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
