@@ -42,6 +42,7 @@ function CustomerDashboard() {
   const [billAmount, setBillAmount] = useState('')
   const [billNote, setBillNote] = useState('')
   const [newName, setNewName] = useState('')
+  const [newPhone, setNewPhone] = useState('')
   const [registering, setRegistering] = useState(false)
   const [showScanner, setShowScanner] = useState(false)
 
@@ -155,6 +156,12 @@ function CustomerDashboard() {
       return () => { supabase.removeChannel(channel) }
     } else {
       setProfile(null)
+      // Pre-fill phone if available from auth
+      if (user?.email) {
+        const rawPhone = user.email.split('@')[0]
+        const cleanPhone = rawPhone.replace(/\D/g, '').slice(-10)
+        if (cleanPhone.length >= 10) setNewPhone(cleanPhone)
+      }
       setLoading(false)
     }
   }
@@ -167,19 +174,16 @@ function CustomerDashboard() {
 
   const handleAutoRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newName.trim()) return
+    if (!newName.trim() || !newPhone.trim()) return
     setRegistering(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    
-    const rawPhone = user.email?.split('@')[0]
-    const cleanPhone = rawPhone?.replace(/\D/g, '').slice(-10)
     
     const { data, error } = await supabase.from('customers').insert({
       user_id: shopId,
       auth_user_id: user.id,
       name: newName.trim(),
-      phone: cleanPhone,
+      phone: newPhone.trim(),
       created_at: Date.now()
     }).select().single()
     
@@ -529,22 +533,38 @@ function CustomerDashboard() {
             </p>
             
             <form onSubmit={handleAutoRegister} className="w-full max-w-sm">
-              <div className="flex flex-col gap-1.5 mb-6">
-                <label className={`text-sm font-bold ml-1 ${ta ? 'font-tamil' : 'font-display'}`}>
-                  {ta ? 'உங்கள் பெயர்' : 'Your Name'}
-                </label>
-                <input
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder={ta ? "பெயரை உள்ளிடவும்" : "Enter your name"}
-                  className="w-full h-14 bg-background rounded-2xl border-2 border-primary/20 px-4 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-display shadow-sm"
-                  required
-                />
+              <div className="flex flex-col gap-4 mb-8">
+                <div className="flex flex-col gap-1.5">
+                  <label className={`text-sm font-bold ml-1 ${ta ? 'font-tamil' : 'font-display'}`}>
+                    {ta ? 'உங்கள் பெயர்' : 'Your Name'}
+                  </label>
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder={ta ? "பெயரை உள்ளிடவும்" : "Enter your name"}
+                    className="w-full h-14 bg-background rounded-2xl border-2 border-primary/20 px-4 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-display shadow-sm"
+                    required
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-1.5">
+                  <label className={`text-sm font-bold ml-1 ${ta ? 'font-tamil' : 'font-display'}`}>
+                    {ta ? 'மொபைல் எண்' : 'Mobile Number'}
+                  </label>
+                  <input
+                    type="tel"
+                    value={newPhone}
+                    onChange={(e) => setNewPhone(e.target.value)}
+                    placeholder={ta ? "மொபைல் எண்" : "Enter mobile number"}
+                    className="w-full h-14 bg-background rounded-2xl border-2 border-primary/20 px-4 text-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-display shadow-sm"
+                    required
+                  />
+                </div>
               </div>
               <button
                 type="submit"
-                disabled={registering || !newName.trim()}
+                disabled={registering || !newName.trim() || !newPhone.trim()}
                 className="w-full h-14 bg-primary text-primary-foreground font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg press-scale disabled:opacity-50"
               >
                 {registering ? (
