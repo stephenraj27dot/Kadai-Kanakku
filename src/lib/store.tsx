@@ -31,7 +31,7 @@ type Ctx = {
   getCustomer: (id: string) => Customer | undefined;
   balanceOf: (c: Customer) => number;
   statusOf: (c: Customer) => "settled" | "partial" | "pending";
-  totals: () => { pending: number; pendingCount: number; partialCount: number; settledToday: number };
+  totals: () => { pending: number; pendingCount: number; partialCount: number; settledToday: number; salesToday: number };
 };
 
 const StoreContext = createContext<Ctx | null>(null);
@@ -115,7 +115,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const totals = () => {
-    let pending = 0, pendingCount = 0, partialCount = 0, settledToday = 0;
+    let pending = 0, pendingCount = 0, partialCount = 0, settledToday = 0, salesToday = 0;
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
@@ -129,10 +129,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (s === "partial") partialCount++;
       }
       for (const t of c.txns) {
-        if (t.type === "credit" && t.at >= startOfDay.getTime()) settledToday += t.amount;
+        if (t.at >= startOfDay.getTime()) {
+          if (t.type === "credit") settledToday += t.amount;
+          if (t.type === "debit") salesToday += t.amount;
+        }
       }
     }
-    return { pending, pendingCount, partialCount, settledToday };
+    return { pending, pendingCount, partialCount, settledToday, salesToday };
   };
 
   const addCustomer: Ctx["addCustomer"] = async ({ name, phone, address, notes, opening }) => {

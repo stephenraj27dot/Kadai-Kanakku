@@ -38,6 +38,8 @@ function CustomerDashboard() {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'balance' | 'orders'>('balance')
   const [paying, setPaying] = useState(false)
+  const [billAmount, setBillAmount] = useState('')
+  const [billNote, setBillNote] = useState('')
 
   useEffect(() => { 
     let cleanupFunc: (() => void) | void;
@@ -178,6 +180,69 @@ function CustomerDashboard() {
     setPaying(true)
   }
 
+  const handlePOSBaki = async () => {
+    if (!billAmount || !profile) return
+    setLoading(true)
+    const amount = Number(billAmount)
+    const note = billNote || (ta ? 'கடை பில்' : 'Shop Bill')
+    
+    await supabase.from('txns').insert({
+      customer_id: profile.id,
+      user_id: shopId,
+      type: 'debit',
+      amount,
+      note: note,
+      at: Date.now()
+    })
+    
+    setBillAmount('')
+    setBillNote('')
+    alert(ta ? 'பாக்கியில் சேர்க்கப்பட்டது!' : 'Added to Baki!')
+    setLoading(false)
+  }
+
+  const handlePOSUPI = async () => {
+    if (!billAmount || !profile) return
+    const amount = Number(billAmount)
+    const note = billNote || (ta ? 'கடை பில்' : 'Shop Bill')
+
+    if (!shopProfile?.upi_id) {
+      alert(ta ? "கடைக்காரர் இன்னும் UPI ID-ஐ இணைக்கவில்லை." : "Shop owner hasn't linked a UPI ID yet.")
+      return
+    }
+
+    setLoading(true)
+    const now = Date.now()
+
+    // 1. Record the sale (debit)
+    await supabase.from('txns').insert({
+      customer_id: profile.id,
+      user_id: shopId,
+      type: 'debit',
+      amount,
+      note: note,
+      at: now
+    })
+
+    // 2. Record the payment immediately (credit)
+    await supabase.from('txns').insert({
+      customer_id: profile.id,
+      user_id: shopId,
+      type: 'credit',
+      amount,
+      note: ta ? `ஆன்லைன் பேமென்ட் (${note})` : `Online Payment (${note})`,
+      at: now + 1
+    })
+
+    setBillAmount('')
+    setBillNote('')
+    
+    const upiUrl = `upi://pay?pa=${shopProfile.upi_id}&pn=${encodeURIComponent(shopProfile.shop_name || 'Shop')}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`
+    window.location.href = upiUrl
+    
+    setLoading(false)
+  }
+
   const statusIcon = (s: string) => {
     if (s === 'pending') return <Clock className="size-3.5 text-amber-500" />
     if (s === 'delivered') return <CheckCircle className="size-3.5 text-green-600" />
@@ -245,6 +310,54 @@ function CustomerDashboard() {
                 </div>
               </div>
             )}
+
+            {/* POS Self-Checkout Card */}
+            <div className="bg-background rounded-3xl p-5 border-2 border-primary/20 shadow-lg relative overflow-hidden mb-2">
+              <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-4 py-1.5 rounded-bl-2xl font-bold text-xs tracking-wider shadow-sm">
+                {ta ? 'புதிய பில்' : 'New Bill'}
+              </div>
+              <div className="pt-2">
+                <p className={`text-sm font-bold mb-2 ${ta ? 'font-tamil' : 'font-display'} text-foreground/80`}>
+                  {ta ? 'பொருட்கள் / குறிப்பு:' : 'Items / Note:'}
+                </p>
+                <input 
+                  type="text" 
+                  value={billNote}
+                  onChange={e => setBillNote(e.target.value)}
+                  placeholder={ta ? "உ.ம்: மளிகை சாமான்" : "e.g., Groceries"}
+                  className="w-full h-12 bg-muted/50 rounded-xl px-4 text-sm font-display mb-4 border border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all outline-none"
+                />
+                <p className={`text-sm font-bold mb-2 ${ta ? 'font-tamil' : 'font-display'} text-foreground/80`}>
+                  {ta ? 'பில் தொகை (₹):' : 'Bill Amount (₹):'}
+                </p>
+                <input 
+                  type="number" 
+                  value={billAmount}
+                  onChange={e => setBillAmount(e.target.value)}
+                  placeholder="₹ 0"
+                  className="w-full h-14 bg-muted/50 rounded-xl px-4 text-2xl font-black font-display mb-5 text-primary border border-border/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all outline-none"
+                />
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <button 
+                    onClick={handlePOSUPI}
+                    disabled={!billAmount || loading}
+                    className="h-12 bg-green-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-soft press-scale disabled:opacity-50"
+                  >
+                    <CreditCard className="size-4.5" />
+                    <span className={ta ? 'font-tamil text-[13px]' : 'text-sm'}>{ta ? 'Pay Now (UPI)' : 'Pay Now (UPI)'}</span>
+                  </button>
+                  <button 
+                    onClick={handlePOSBaki}
+                    disabled={!billAmount || loading}
+                    className="h-12 bg-primary text-primary-foreground font-bold rounded-xl flex items-center justify-center gap-2 shadow-soft press-scale disabled:opacity-50"
+                  >
+                    <Clock className="size-4.5" />
+                    <span className={ta ? 'font-tamil text-[13px]' : 'text-sm'}>{ta ? 'பாக்கி வைக்க' : 'Keep as Baki'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
 
             {/* Balance Card */}
             <div className={`rounded-3xl p-5 shadow-sm relative overflow-hidden ${isOwed ? 'bg-red-50 border border-red-100' : 'bg-green-50 border border-green-100'}`}>

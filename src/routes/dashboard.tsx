@@ -21,7 +21,7 @@ function Dashboard() {
   const { shopName } = useSettings();
 
   const [showQR, setShowQR] = useState(false);
-  const { pending, pendingCount } = totals();
+  const { pending, pendingCount, salesToday, settledToday } = totals();
   const [pendingOrders, setPendingOrders] = useState(0);
 
   const fetchOrderCount = async () => {
@@ -128,14 +128,25 @@ function Dashboard() {
           </div>
         )}
 
-        <div className="mt-8 relative z-10">
-          <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em]">{t("totalPending")}</p>
-          <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-4xl font-black text-white tracking-tighter">{formatMoney(pending)}</span>
+        <div className="mt-8 relative z-10 grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em]">{ta ? 'இன்றைய வியாபாரம்' : 'Today Sales'}</p>
+            <div className="flex items-baseline gap-1 mt-1">
+              <span className="text-3xl font-black text-white tracking-tighter">{formatMoney(salesToday)}</span>
+            </div>
+            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-white/80 bg-white/10 self-start px-2.5 py-1 rounded-full backdrop-blur-sm w-max">
+              <span className="text-green-400">+{formatMoney(settledToday)} {ta ? 'வரவு' : 'Paid'}</span>
+            </div>
           </div>
-          <div className="mt-4 flex items-center gap-2 text-xs font-bold text-white/90 bg-black/10 self-start px-3.5 py-2 rounded-full backdrop-blur-sm border border-white/5">
-            <Users className="size-3.5" />
-            {pendingCount} {t("pendingCustomers")}
+          <div>
+            <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em]">{t("totalPending")}</p>
+            <div className="flex items-baseline gap-1 mt-1">
+              <span className="text-3xl font-black text-white tracking-tighter">{formatMoney(pending)}</span>
+            </div>
+            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-white/80 bg-white/10 self-start px-2.5 py-1 rounded-full backdrop-blur-sm w-max">
+              <Users className="size-3" />
+              {pendingCount} {t("pendingCustomers")}
+            </div>
           </div>
         </div>
       </div>
