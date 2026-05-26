@@ -91,18 +91,7 @@ function CustomerOrder() {
       return
     }
 
-    // 2. If UPI payment was successful, record the credit transaction
-    if (isAlreadyPaid) {
-      const { error: txnError } = await supabase.from('txns').insert({
-        customer_id: customer.id,
-        user_id: shopId,
-        type: 'credit',
-        amount: totalAmount,
-        note: ta ? `Online Payment - ${quantity} Can Order` : `Online Payment - ${quantity} Can Order`,
-        at: Date.now()
-      })
-      if (txnError) console.error("Txn Record Error:", txnError)
-    }
+    // Removed insecure client-side txn insertion. Shop owner will verify and add credit.
 
     setSuccess(true)
     setLoading(false)
@@ -126,7 +115,7 @@ function CustomerOrder() {
           <div className="size-24 rounded-full bg-primary/10 flex items-center justify-center animate-in zoom-in duration-500">
             <CheckCircle className="size-14 text-primary" strokeWidth={1.5} />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h2 className={`text-2xl font-bold ${ta ? 'font-tamil' : 'font-display'} text-foreground`}>
               {ta ? 'ஆர்டர் அனுப்பப்பட்டது!' : 'Order Placed!'}
             </h2>
@@ -135,10 +124,19 @@ function CustomerOrder() {
                 ? `${quantity} கேன் தண்ணீர் - ${new Date(deliveryDate).toLocaleDateString('ta-IN')} அன்று டெலிவரி செய்யப்படும்.`
                 : `${quantity} can(s) of water will be delivered on ${new Date(deliveryDate).toLocaleDateString('en-IN')}.`}
             </p>
+            {paymentMethod === 'upi' && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <p className={`text-xs font-bold text-amber-700 ${ta ? 'font-tamil' : 'font-display'}`}>
+                  {ta 
+                    ? 'உங்கள் ஆன்லைன் பேமென்ட் கடைக்காரரால் சரிபார்க்கப்பட்ட பிறகு கணக்கில் வரவு வைக்கப்படும் (Settled).'
+                    : 'Your online payment will be settled in your account once verified by the shop owner.'}
+                </p>
+              </div>
+            )}
           </div>
           <button
             onClick={() => navigate({ to: `/c/${shopId}`, replace: true })}
-            className="w-full max-w-xs h-12 bg-primary text-primary-foreground font-bold rounded-xl"
+            className="w-full max-w-xs h-12 bg-primary text-primary-foreground font-bold rounded-xl mt-4"
           >
             {ta ? 'முகப்பு பக்கத்திற்கு செல்லவும்' : 'Back to Home'}
           </button>

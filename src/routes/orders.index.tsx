@@ -72,16 +72,17 @@ function OrdersDashboard() {
       at: Date.now(),
     })
 
-    // 3. If Cash collected or UPI (already handled at order time, but for safety), add Credit
-    // If it was UPI, the credit is usually added at the time of order in the customer side.
-    // If it's COD and owner says "Yes, I got cash", we add credit now.
+    // 3. If Cash collected or UPI is verified, add Credit
     if (collectedCash) {
+      const isOnline = order.payment_method === 'upi'
       await supabase.from('txns').insert({
         customer_id: order.customer_id,
         user_id: order.shop_owner_id,
         type: 'credit',
         amount: order.amount,
-        note: ta ? 'நேரடியாகப் பெற்ற பணம் (Cash)' : 'Received Cash on Delivery',
+        note: isOnline 
+          ? (ta ? 'ஆன்லைன் பேமென்ட் சரிபார்க்கப்பட்டது (Online)' : 'Online Payment Verified')
+          : (ta ? 'நேரடியாகப் பெற்ற பணம் (Cash)' : 'Received Cash on Delivery'),
         at: Date.now() + 1, // slight offset to ensure it follows debit
       })
     }
@@ -153,29 +154,63 @@ function OrdersDashboard() {
 
                 {order.status === 'pending' && (
                   <div className="mt-4 pt-4 border-t border-border space-y-2">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">{ta ? 'டெலிவரி செய்யும்போது:' : 'Action:'}</p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleDelivery(order, true)}
-                        disabled={!!processingId}
-                        className="flex-1 h-11 bg-primary text-primary-foreground rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-soft"
-                      >
-                        <Check className="size-4" /> {ta ? 'பணம் வாங்கினேன்' : 'Got Cash'}
-                      </button>
-                      <button
-                        onClick={() => handleDelivery(order, false)}
-                        disabled={!!processingId}
-                        className="flex-1 h-11 bg-background border border-primary text-primary rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all"
-                      >
-                        <Clock className="size-4" /> {ta ? 'பாக்கி (Baki)' : 'Add to Baki'}
-                      </button>
-                      <button
-                        onClick={() => cancelOrder(order.id)}
-                        className="h-11 w-11 bg-muted text-muted-foreground rounded-xl flex items-center justify-center active:scale-95 border border-border"
-                      >
-                        <XCircle className="size-4" />
-                      </button>
-                    </div>
+                    {order.payment_method === 'upi' ? (
+                      <>
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl mb-3">
+                          <p className={`text-xs font-bold text-amber-700 ${ta ? 'font-tamil' : ''}`}>
+                            {ta ? 'கஸ்டமர் ஆன்லைனில் (UPI) பணம் செலுத்தியதாக கூறியுள்ளார். உங்கள் வங்கி கணக்கில் சரிபார்க்கவும்.' : 'Customer claims UPI payment. Verify your bank account.'}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleDelivery(order, true)}
+                            disabled={!!processingId}
+                            className="flex-1 h-11 bg-green-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-soft"
+                          >
+                            <CheckCircle className="size-4" /> {ta ? 'பணம் வந்துவிட்டது (Settle)' : 'Payment Verified'}
+                          </button>
+                          <button
+                            onClick={() => handleDelivery(order, false)}
+                            disabled={!!processingId}
+                            className="flex-1 h-11 bg-background border border-red-500 text-red-500 rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all"
+                          >
+                            <XCircle className="size-4" /> {ta ? 'வரவில்லை (Baki)' : 'Not Received (Baki)'}
+                          </button>
+                          <button
+                            onClick={() => cancelOrder(order.id)}
+                            className="h-11 w-11 bg-muted text-muted-foreground rounded-xl flex items-center justify-center active:scale-95 border border-border"
+                          >
+                            <XCircle className="size-4" />
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">{ta ? 'டெலிவரி செய்யும்போது:' : 'Action:'}</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleDelivery(order, true)}
+                            disabled={!!processingId}
+                            className="flex-1 h-11 bg-primary text-primary-foreground rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-soft"
+                          >
+                            <Check className="size-4" /> {ta ? 'பணம் வாங்கினேன்' : 'Got Cash'}
+                          </button>
+                          <button
+                            onClick={() => handleDelivery(order, false)}
+                            disabled={!!processingId}
+                            className="flex-1 h-11 bg-background border border-primary text-primary rounded-xl text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all"
+                          >
+                            <Clock className="size-4" /> {ta ? 'பாக்கி (Baki)' : 'Add to Baki'}
+                          </button>
+                          <button
+                            onClick={() => cancelOrder(order.id)}
+                            className="h-11 w-11 bg-muted text-muted-foreground rounded-xl flex items-center justify-center active:scale-95 border border-border"
+                          >
+                            <XCircle className="size-4" />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
