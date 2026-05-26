@@ -62,6 +62,7 @@ function CustomerLogin() {
           setLoading(false)
         } else {
           // Signup success
+          setLoading(false)
           navigate({ to: `/c/${shopId}`, replace: true })
         }
       } else {
@@ -70,6 +71,7 @@ function CustomerLogin() {
       }
     } else {
       // Login success
+      setLoading(false)
       navigate({ to: `/c/${shopId}`, replace: true })
     }
   }

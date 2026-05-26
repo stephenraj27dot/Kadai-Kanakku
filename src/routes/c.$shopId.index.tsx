@@ -74,7 +74,8 @@ function CustomerDashboard() {
 
   const loadCustomerData = async () => {
     setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { session } } = await supabase.auth.getSession()
+    const user = session?.user
     if (!user) return navigate({ to: `/c/${shopId}/login`, replace: true })
 
     // Fetch shop info (UPI ID, etc)
@@ -177,7 +178,8 @@ function CustomerDashboard() {
     e.preventDefault()
     if (!newName.trim() || !newPhone.trim()) return
     setRegistering(true)
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { session } } = await supabase.auth.getSession()
+    const user = session?.user
     if (!user) {
       setRegistering(false)
       return
