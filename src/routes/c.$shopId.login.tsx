@@ -14,7 +14,6 @@ function CustomerLogin() {
   
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
-  const [isLogin, setIsLogin] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -31,7 +30,6 @@ function CustomerLogin() {
     setLoading(true)
     setError('')
     
-    // Clean phone number and create dummy email
     const cleanPhone = phone.replace(/\D/g, '')
     if (cleanPhone.length < 10) {
       setError('Please enter a valid phone number')
@@ -40,27 +38,37 @@ function CustomerLogin() {
     }
     const fakeEmail = `${cleanPhone}@kadaikanakku.com`
 
-    let authError = null
+    // Attempt login first
+    const { error: signInErr } = await supabase.auth.signInWithPassword({
+      email: fakeEmail,
+      password,
+    })
 
-    if (isLogin) {
-      const { error: signInErr } = await supabase.auth.signInWithPassword({
-        email: fakeEmail,
-        password,
-      })
-      authError = signInErr
+    if (signInErr) {
+      if (signInErr.message === "Invalid login credentials") {
+        // User doesn't exist or wrong password. Try sign up!
+        const { error: signUpErr } = await supabase.auth.signUp({
+          email: fakeEmail,
+          password,
+        })
+        
+        if (signUpErr) {
+          if (signUpErr.message.includes("already registered")) {
+            setError("தவறான பாஸ்வேர்ட். தயவுசெய்து மீண்டும் சரிபார்க்கவும்.") // Wrong password
+          } else {
+            setError(signUpErr.message)
+          }
+          setLoading(false)
+        } else {
+          // Signup success
+          navigate({ to: `/c/${shopId}`, replace: true })
+        }
+      } else {
+        setError(signInErr.message)
+        setLoading(false)
+      }
     } else {
-      const { error: signUpErr } = await supabase.auth.signUp({
-        email: fakeEmail,
-        password,
-      })
-      authError = signUpErr
-    }
-
-    if (authError) {
-      setError(authError.message === "Invalid login credentials" ? "தவறான மொபைல் எண் அல்லது பாஸ்வேர்ட்" : authError.message)
-      setLoading(false)
-    } else {
-      // Success, go to customer dashboard
+      // Login success
       navigate({ to: `/c/${shopId}`, replace: true })
     }
   }
@@ -73,7 +81,7 @@ function CustomerLogin() {
             <User className="size-8" strokeWidth={2.5} />
           </div>
           <h1 className="text-3xl font-bold font-tamil">
-            {isLogin ? "உள்நுழையவும்" : "கணக்கு உருவாக்கவும்"}
+            உள்நுழையவும்
           </h1>
           <p className="mt-2 text-sm text-muted-foreground text-center font-tamil">
             வாடிக்கையாளர் கணக்கு
@@ -131,27 +139,12 @@ function CustomerLogin() {
               <div className="size-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>
-                {isLogin ? "உள்நுழைக" : "கணக்கு உருவாக்கு"}
+                தொடரவும்
                 <ArrowRight className="size-5" />
               </>
             )}
           </button>
         </form>
-
-        <div className="mt-8 text-center">
-          <p className="text-sm text-muted-foreground font-tamil">
-            {isLogin ? "புதிய வாடிக்கையாளரா?" : "ஏற்கனவே கணக்கு உள்ளதா?"}
-          </p>
-          <button
-            onClick={() => {
-              setIsLogin(!isLogin)
-              setError('')
-            }}
-            className="mt-2 text-primary font-bold text-sm hover:underline font-tamil active:scale-95 transition-transform"
-          >
-            {isLogin ? "புதிய கணக்கை உருவாக்கவும்" : "உள்நுழையவும்"}
-          </button>
-        </div>
 
         {/* Link back to shop owner login for testing/owners */}
         <div className="mt-8 text-center border-t border-border pt-6">
