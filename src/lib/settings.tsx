@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
+import { supabase } from "./supabase";
+
 export type Theme = "light" | "dark" | "system";
 
 type SettingsCtx = {
@@ -59,6 +61,25 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     if (sessionStorage.getItem("bb_unlocked") === "true") {
       setUnlocked(true);
     }
+
+    // Sync from Supabase if logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        supabase
+          .from('shop_profiles')
+          .select('*')
+          .eq('owner_id', session.user.id)
+          .single()
+          .then(({ data }) => {
+            if (data) {
+              if (data.shop_name) { setShopNameState(data.shop_name); localStorage.setItem("bb_shopName", data.shop_name); }
+              if (data.phone) { setShopPhoneState(data.phone); localStorage.setItem("bb_shopPhone", data.phone); }
+              if (data.upi_id) { setUpiIdState(data.upi_id); localStorage.setItem("bb_upiId", data.upi_id); }
+              if (data.can_price) { setCanPriceState(data.can_price); localStorage.setItem("bb_canPrice", data.can_price.toString()); }
+            }
+          });
+      }
+    });
   }, []);
 
   useEffect(() => {
