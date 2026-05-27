@@ -50,7 +50,7 @@ function Dashboard() {
     .slice(0, 5);
 
   const domain = typeof window !== 'undefined' ? window.location.origin : '';
-  const shopUrl = `${domain}/c/${user?.id}/`;
+  const shopUrl = `${domain}/c/${user?.id}`;
 
   return (
     <PhoneShell>
@@ -160,8 +160,8 @@ function Dashboard() {
             <div className="flex items-baseline gap-1 mt-1">
               <span className="text-3xl font-black text-white tracking-tighter">{formatMoney(salesToday)}</span>
             </div>
-            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-white/80 bg-white/10 self-start px-2.5 py-1 rounded-full backdrop-blur-sm w-max">
-              <span className="text-green-400">+{formatMoney(settledToday)} {ta ? 'வரவு' : 'Paid'}</span>
+            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold bg-emerald-400/20 text-emerald-200 self-start px-2.5 py-1 rounded-full backdrop-blur-sm w-max border border-emerald-400/20">
+              <span>✓ +{formatMoney(settledToday)} {ta ? 'வரவு' : 'Paid'}</span>
             </div>
           </div>
           <div>
