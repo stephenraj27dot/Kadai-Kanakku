@@ -236,6 +236,7 @@ function AuthPage() {
                     onChange={e => setPassword(e.target.value)}
                     className="mt-1.5 w-full h-12 pl-10 pr-4 rounded-xl bg-card border border-border focus:border-primary outline-none transition-all shadow-sm font-display"
                     placeholder="••••••••"
+                    minLength={8}
                   />
                 </div>
               </div>
@@ -276,7 +277,7 @@ function AuthPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={ta ? 'பாஸ்வேர்ட் உள்ளிடவும்' : 'Enter password'}
                     className="w-full h-12 pl-10 pr-4 rounded-xl bg-card border border-border focus:border-primary outline-none transition-all shadow-sm font-display"
-                    minLength={6}
+                    minLength={8}
                   />
                 </div>
               </div>

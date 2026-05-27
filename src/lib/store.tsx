@@ -36,10 +36,10 @@ type Ctx = {
 
 const StoreContext = createContext<Ctx | null>(null);
 
-const balanceOf = (c: Customer) =>
+export const balanceOf = (c: Customer) =>
   c.txns.reduce((s, t) => s + (t.type === "debit" ? t.amount : -t.amount), 0);
 
-const statusOf = (c: Customer) => {
+export const statusOf = (c: Customer) => {
   const bal = balanceOf(c);
   if (bal <= 0) return "settled";
   const hasPaid = c.txns.some(t => t.type === "credit");
