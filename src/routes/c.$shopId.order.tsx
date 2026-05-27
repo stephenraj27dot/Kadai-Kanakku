@@ -140,7 +140,7 @@ function CustomerOrder() {
           </div>
           <div className="space-y-3">
             <h2 className={`text-2xl font-bold ${ta ? 'font-tamil' : 'font-display'} text-foreground`}>
-              {ta ? 'ஆர்டர் அனுப்பப்பட்டது!' : 'Order Placed!'}
+              {paymentMethod === 'upi' ? (ta ? 'ஆர்டர் அனுப்பப்பட்டது!' : 'Order Sent!') : (ta ? 'ஆர்டர் உறுதி செய்யப்பட்டது!' : 'Order Confirmed!')}
             </h2>
             <p className={`text-sm text-muted-foreground ${ta ? 'font-tamil' : 'font-display'}`}>
               {ta
@@ -148,11 +148,14 @@ function CustomerOrder() {
                 : `${quantity} can(s) of water will be delivered on ${new Date(deliveryDate).toLocaleDateString('en-IN')}.`}
             </p>
             {paymentMethod === 'upi' && (
-              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                <p className={`text-xs font-bold text-amber-700 ${ta ? 'font-tamil' : 'font-display'}`}>
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-left">
+                <p className={`text-sm font-bold text-amber-800 ${ta ? 'font-tamil' : 'font-display'} mb-2`}>
+                  {ta ? 'முக்கிய குறிப்பு:' : 'Important Note:'}
+                </p>
+                <p className={`text-xs font-semibold text-amber-700 ${ta ? 'font-tamil' : 'font-display'}`}>
                   {ta 
-                    ? 'உங்கள் ஆன்லைன் பேமென்ட் கடைக்காரரால் சரிபார்க்கப்பட்ட பிறகு கணக்கில் வரவு வைக்கப்படும் (Settled).'
-                    : 'Your online payment will be settled in your account once verified by the shop owner.'}
+                    ? 'நீங்கள் GPay/PhonePe மூலம் செலுத்திய பணம் கடைக்காரருக்கு வந்தடைந்த பிறகு மட்டுமே உங்கள் ஆர்டர் உறுதி செய்யப்பட்டு தண்ணீர் டெலிவரி செய்யப்படும்.'
+                    : 'Your order will only be confirmed and delivered AFTER the shop owner receives and verifies your payment in their GPay/PhonePe account.'}
                 </p>
               </div>
             )}

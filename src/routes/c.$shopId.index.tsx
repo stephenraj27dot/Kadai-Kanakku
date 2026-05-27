@@ -297,7 +297,7 @@ function CustomerDashboard() {
     setLoading(true)
     const now = Date.now()
 
-    // 1. Record the sale (debit)
+    // 1. Record the sale (debit) only
     await supabase.from('txns').insert({
       customer_id: profile.id,
       user_id: shopId,
@@ -307,17 +307,13 @@ function CustomerDashboard() {
       at: now
     })
 
-    // 2. Record the payment immediately (credit)
-    await supabase.from('txns').insert({
-      customer_id: profile.id,
-      user_id: shopId,
-      type: 'credit',
-      amount,
-      note: ta ? `ஆன்லைன் பேமென்ட் (${note})` : `Online Payment (${note})`,
-      at: now + 1
-    })
+    // We DO NOT insert the credit automatically because we cannot verify the payment.
+    // The shop owner will verify the GPay receipt and manually settle the account.
 
     setBillAmount('')
+    setBillNote('')
+    alert(ta ? 'பில் சேர்க்கப்பட்டது! கடைக்காரர் உங்கள் பேமென்ட்டை சரிபார்த்த பிறகு வரவு வைக்கப்படும்.' : 'Bill added! Account will be settled after shop owner verifies payment.')
+    setLoading(false)
     setBillNote('')
     
     const upiUrl = `upi://pay?pa=${shopProfile.upi_id}&pn=${encodeURIComponent(shopProfile.shop_name || 'Shop')}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`
