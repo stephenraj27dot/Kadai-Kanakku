@@ -52,34 +52,38 @@ function CustomerOrder() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return navigate({ to: `/c/${shopId}/login`, replace: true })
 
-    // Find customer profile - first try by auth_user_id (fast path)
+    // Find customer profile - STRICT: first try by auth_user_id (fast & accurate path)
     const { data: custRows } = await supabase
       .from('customers')
-      .select('id, name')
+      .select('id, name, phone')
       .eq('user_id', shopId)
       .eq('auth_user_id', user.id)
+      .is('deleted_at', null)
       .limit(1)
 
     let customer = custRows && custRows.length > 0 ? custRows[0] : null
 
     if (!customer) {
-      // Fallback: match by last 10 digits of phone (handles spaces, +91, etc.)
+      // Fallback: match by EXACT last 10 digits of phone
       const rawPhone = user.email?.split('@')[0]
       if (rawPhone) {
         const last10 = rawPhone.replace(/\D/g, '').slice(-10)
-        const { data: allUnlinked } = await supabase
-          .from('customers')
-          .select('id, name, phone')
-          .eq('user_id', shopId)
-          .is('auth_user_id', null)
-        if (allUnlinked && last10.length === 10) {
-          const matchedRow = allUnlinked.find(c => {
-            const storedClean = (c.phone || '').replace(/\D/g, '').slice(-10)
-            return storedClean === last10
-          })
-          if (matchedRow) {
-            await supabase.from('customers').update({ auth_user_id: user.id }).eq('id', matchedRow.id)
-            customer = matchedRow
+        if (last10.length === 10) {
+          const { data: allUnlinked } = await supabase
+            .from('customers')
+            .select('id, name, phone')
+            .eq('user_id', shopId)
+            .is('auth_user_id', null)
+            .is('deleted_at', null)
+          if (allUnlinked) {
+            const matchedRow = allUnlinked.find(c => {
+              const storedClean = (c.phone || '').replace(/\D/g, '').slice(-10)
+              return storedClean.length === 10 && storedClean === last10
+            })
+            if (matchedRow) {
+              await supabase.from('customers').update({ auth_user_id: user.id }).eq('id', matchedRow.id)
+              customer = matchedRow
+            }
           }
         }
       }

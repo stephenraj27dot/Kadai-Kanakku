@@ -100,17 +100,26 @@ AS $$
 DECLARE
   matched_user_id uuid;
   matched_customer_id uuid;
+  clean_input text;
 BEGIN
   -- Security check: Must be authenticated
   IF auth.uid() IS NULL THEN
     RAISE EXCEPTION 'Not authenticated';
   END IF;
 
-  -- Find a customer with this phone number that isn't linked yet
-  -- (Takes the most recently created one if duplicates exist)
+  -- Clean the input: extract only digits and take last 10
+  clean_input := right(regexp_replace(phone_number, '\D', '', 'g'), 10);
+
+  -- Validate: must be exactly 10 digits
+  IF length(clean_input) <> 10 THEN
+    RETURN NULL;
+  END IF;
+
+  -- Find a customer whose phone's last 10 digits EXACTLY match the input
+  -- This prevents partial/fuzzy matches that could link the wrong customer
   SELECT id, user_id INTO matched_customer_id, matched_user_id
   FROM customers
-  WHERE phone LIKE '%' || phone_number || '%'
+  WHERE right(regexp_replace(phone, '\D', '', 'g'), 10) = clean_input
     AND auth_user_id IS NULL
   ORDER BY created_at DESC
   LIMIT 1;

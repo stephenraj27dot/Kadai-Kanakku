@@ -108,7 +108,7 @@ function CustomerDashboard() {
         if (allUnlinked && last10.length === 10) {
           const matchedRow = allUnlinked.find(c => {
             const storedClean = (c.phone || '').replace(/\D/g, '').slice(-10)
-            return storedClean === last10
+            return storedClean.length === 10 && storedClean === last10
           })
 
           if (matchedRow) {
