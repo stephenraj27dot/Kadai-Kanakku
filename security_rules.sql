@@ -21,24 +21,28 @@ DROP POLICY IF EXISTS "Allow all access" ON orders;
 -- ==========================================
 
 -- shop_profiles
+DROP POLICY IF EXISTS "Owner full access to own profile" ON shop_profiles;
 CREATE POLICY "Owner full access to own profile" 
 ON shop_profiles FOR ALL 
 USING (auth.uid() = owner_id) 
 WITH CHECK (auth.uid() = owner_id);
 
 -- customers
+DROP POLICY IF EXISTS "Owner full access to own customers" ON customers;
 CREATE POLICY "Owner full access to own customers" 
 ON customers FOR ALL 
 USING (auth.uid() = user_id) 
 WITH CHECK (auth.uid() = user_id);
 
 -- txns
+DROP POLICY IF EXISTS "Owner full access to own txns" ON txns;
 CREATE POLICY "Owner full access to own txns" 
 ON txns FOR ALL 
 USING (auth.uid() = user_id) 
 WITH CHECK (auth.uid() = user_id);
 
 -- orders
+DROP POLICY IF EXISTS "Owner full access to own orders" ON orders;
 CREATE POLICY "Owner full access to own orders" 
 ON orders FOR ALL 
 USING (auth.uid() = shop_owner_id) 
@@ -50,16 +54,19 @@ WITH CHECK (auth.uid() = shop_owner_id);
 -- ==========================================
 
 -- shop_profiles (Public read access so customers can see shop name & UPI ID when paying)
+DROP POLICY IF EXISTS "Anyone can read shop profiles" ON shop_profiles;
 CREATE POLICY "Anyone can read shop profiles" 
 ON shop_profiles FOR SELECT 
 USING (true);
 
 -- customers (Customers can read their own row)
+DROP POLICY IF EXISTS "Customer can read own account" ON customers;
 CREATE POLICY "Customer can read own account" 
 ON customers FOR SELECT 
 USING (auth.uid() = auth_user_id);
 
 -- txns (Customers can read their own transactions, NO INSERT ALLOWED)
+DROP POLICY IF EXISTS "Customer can read own txns" ON txns;
 CREATE POLICY "Customer can read own txns" 
 ON txns FOR SELECT 
 USING (
@@ -69,6 +76,7 @@ USING (
 );
 
 -- orders (Customers can read their own orders AND insert new orders)
+DROP POLICY IF EXISTS "Customer can read own orders" ON orders;
 CREATE POLICY "Customer can read own orders" 
 ON orders FOR SELECT 
 USING (
@@ -77,6 +85,7 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "Customer can insert own orders" ON orders;
 CREATE POLICY "Customer can insert own orders" 
 ON orders FOR INSERT 
 WITH CHECK (
